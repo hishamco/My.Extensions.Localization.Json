@@ -7,6 +7,7 @@ using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
+using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
 {
@@ -99,8 +100,9 @@ namespace My.Extensions.Localization.Json
 
                 return value;
             });
-
             var resource = resources?.SingleOrDefault(s => s.Key == name);
+            _logger.SearchedLocation(name, _searchedLocation, culture);
+
             return resource?.Value ?? null;
         }
     }
