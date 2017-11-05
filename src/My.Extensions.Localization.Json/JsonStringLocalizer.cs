@@ -92,7 +92,7 @@ namespace My.Extensions.Localization.Json
                 {
                     var builder = new ConfigurationBuilder()
                     .SetBasePath(_resourcesPath)
-                    .AddJsonFile(resourceFile);
+                    .AddJsonFile(resourceFile, optional: false, reloadOnChange: true);
 
                     var config = builder.Build();
                     value = config.AsEnumerable();
