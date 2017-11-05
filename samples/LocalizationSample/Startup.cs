@@ -1,25 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Globalization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 
 namespace LocalizationSample
 {
     public class Startup
     {
-        // This method gets called by the runtime. Use this method to add services to the container.
-        // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer)
         {
+            var supportedCultures = new List<CultureInfo>
+            {
+                new CultureInfo("en-US"),
+                new CultureInfo("fr-FR")
+            };
+            var options = new RequestLocalizationOptions
+            {
+                DefaultRequestCulture = new RequestCulture("en-US"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures
+            };
+
+            app.UseRequestLocalization(options);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -27,7 +39,7 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync("Hello World!");
+                await context.Response.WriteAsync($"{localizer["Hello"]}!!");
             });
         }
     }
