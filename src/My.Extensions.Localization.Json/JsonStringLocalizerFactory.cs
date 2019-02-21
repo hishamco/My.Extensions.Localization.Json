@@ -34,8 +34,8 @@ namespace My.Extensions.Localization.Json
 
             var typeInfo = resourceSource.GetTypeInfo();
             var assembly = typeInfo.Assembly;
-            var applicationRootPath = new DirectoryInfo(assembly.Location).Parent.Parent.Parent.Parent.FullName;
-            var resourcesPath = Path.Combine(applicationRootPath, GetResourcePath(assembly));
+            var applicationRootPath = new DirectoryInfo(assembly.Location).Parent.Parent.Parent.Parent.Parent.FullName;
+            var resourcesPath = Path.Combine(applicationRootPath, assembly.GetName().Name, GetResourcePath(assembly));
 
             return CreateJsonStringLocalizer(resourcesPath, typeInfo.Name);
         }
@@ -66,14 +66,9 @@ namespace My.Extensions.Localization.Json
         {
             var resourceLocationAttribute = assembly.GetCustomAttribute<ResourceLocationAttribute>();
 
-            var resourceLocation = resourceLocationAttribute == null
+            return resourceLocationAttribute == null
                 ? _resourcesRelativePath
-                : resourceLocationAttribute.ResourceLocation + ".";
-            resourceLocation = resourceLocation
-                .Replace(Path.DirectorySeparatorChar, '.')
-                .Replace(Path.AltDirectorySeparatorChar, '.');
-
-            return resourceLocation;
+                : resourceLocationAttribute.ResourceLocation;
         }
     }
 }
