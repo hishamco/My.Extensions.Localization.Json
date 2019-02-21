@@ -40,8 +40,7 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                //await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
-                await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer1["Hello"]} - {localizer2["Hello"]}!!");
             });
         }
     }
