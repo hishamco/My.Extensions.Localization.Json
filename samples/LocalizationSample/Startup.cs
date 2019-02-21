@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
+using LocalizationSample.Resources;
 
 namespace LocalizationSample
 {
@@ -16,7 +17,7 @@ namespace LocalizationSample
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer1, IStringLocalizer<Model> localizer2)
         {
             var supportedCultures = new List<CultureInfo>
             {
@@ -39,7 +40,8 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync($"{localizer["Hello"]}!!");
+                //await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
             });
         }
     }

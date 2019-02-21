@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "My.Extensions.Localization.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample", "samples\LocalizationSample\LocalizationSample.csproj", "{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Resources", "samples\LocalizationSample.Resources\LocalizationSample.Resources.csproj", "{9789DDC4-6CC1-4A77-9883-D745BCAB524F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9789DDC4-6CC1-4A77-9883-D745BCAB524F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9789DDC4-6CC1-4A77-9883-D745BCAB524F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9789DDC4-6CC1-4A77-9883-D745BCAB524F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9789DDC4-6CC1-4A77-9883-D745BCAB524F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,5 +47,9 @@ Global
 		{15E86906-2A6F-4F35-8D06-404CD33C82D5} = {9FF90A72-EC14-4C15-921F-DB7AE3D1D34C}
 		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE} = {E0CDCF6A-1738-46CC-A28A-0DFBC02B40DE}
 		{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
+		{9789DDC4-6CC1-4A77-9883-D745BCAB524F} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D173946A-BDF7-44A8-9740-2156FA7EC074}
 	EndGlobalSection
 EndGlobal
