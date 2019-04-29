@@ -27,20 +27,29 @@ namespace My.Extensions.Localization.Json
 
         public IStringLocalizer Create(Type resourceSource)
         {
-            if (resourceSource == null)
+                  if (resourceSource == null)
             {
                 throw new ArgumentNullException(nameof(resourceSource));
             }
 
             var typeInfo = resourceSource.GetTypeInfo();
-            var applicationRootPath = AppContext.BaseDirectory;
-#if DEBUG
-            var targetIndex = AppContext.BaseDirectory.LastIndexOf("\\bin");
-            if(targetIndex > 0) applicationRootPath = AppContext.BaseDirectory.Substring(0,targetIndex);
-#endif
-            var resourcesPath = Path.Combine(applicationRootPath, GetResourcePath(Assembly.GetEntryAssembly()));
+            var assembly = typeInfo.Assembly;
+            var basePath = assembly.Location.Substring(0, assembly.Location.IndexOf(Assembly.GetEntryAssembly().GetName().Name));
+            var filePathList = new List<string>() {
+                Path.Combine(basePath, assembly.GetName().Name, GetResourcePath(assembly)),
+                Path.Combine(basePath, Assembly.GetEntryAssembly().GetName().Name, GetResourcePath(assembly)),
+                Path.Combine(AppContext.BaseDirectory, GetResourcePath(assembly))
+            }.Distinct();
 
-            return CreateJsonStringLocalizer(resourcesPath, typeInfo.Name);
+            foreach(var i in filePathList)
+            {
+                if (Directory.Exists(i) && new DirectoryInfo(i).EnumerateFiles().Select(o => o.Name).Where(o => o.StartsWith(typeInfo.Name)).Any())
+                {
+                    return CreateJsonStringLocalizer(i, typeInfo.Name);
+                }
+            }
+
+            return CreateJsonStringLocalizer(filePathList.Last(),typeInfo.Name);
         }
 
         public IStringLocalizer Create(string baseName, string location)
