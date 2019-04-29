@@ -1,5 +1,7 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -27,7 +29,7 @@ namespace My.Extensions.Localization.Json
 
         public IStringLocalizer Create(Type resourceSource)
         {
-                  if (resourceSource == null)
+            if (resourceSource == null)
             {
                 throw new ArgumentNullException(nameof(resourceSource));
             }
