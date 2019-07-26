@@ -19,14 +19,22 @@ namespace My.Extensions.Localization.Json
         private readonly ILogger _logger;
 
         private string _searchedLocation;
-
+        
         public JsonStringLocalizer(
             string resourcesPath,
             string resourceName,
             ILogger logger)
         {
             _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
-            _resourceName = resourceName;
+            _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourcesPath));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        internal JsonStringLocalizer(
+            string resourcesPath,
+            ILogger logger)
+        {
+            _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -84,7 +92,12 @@ namespace My.Extensions.Localization.Json
             var culture = CultureInfo.CurrentUICulture;
             var resources = _resourcesCache.GetOrAdd(culture.Name, _ =>
             {
-                var resourceFile = (string.IsNullOrEmpty(_resourceName) ? $"{culture.Name}" : $"{_resourceName}.{culture.Name}") + ".json";
+                var resourceFile = $"{culture.Name}.json";
+                if (_resourceName != null)
+                {
+                    resourceFile = String.Join(".", _resourceName, resourceFile);
+                }
+
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
                 IEnumerable<KeyValuePair<string, string>> value = null;
 

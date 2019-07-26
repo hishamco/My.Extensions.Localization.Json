@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Localization;
 using My.Extensions.Localization.Json;
+using My.Extensions.Localization.Json.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -23,7 +24,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
         public static IServiceCollection AddJsonLocalization(
            this IServiceCollection services,
-           Action<LocalizationOptions> setupAction)
+           Action<JsonLocalizationOptions> setupAction)
         {
             if (services == null)
             {
@@ -34,7 +35,7 @@ namespace Microsoft.Extensions.DependencyInjection
             {
                 throw new ArgumentNullException(nameof(setupAction));
             }
-
+            
             AddJsonLocalizationServices(services, setupAction);
 
             return services;
@@ -44,11 +45,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
             services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
+            services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
         }
 
         internal static void AddJsonLocalizationServices(
             IServiceCollection services,
-            Action<LocalizationOptions> setupAction)
+            Action<JsonLocalizationOptions> setupAction)
         {
             AddJsonLocalizationServices(services);
             services.Configure(setupAction);
