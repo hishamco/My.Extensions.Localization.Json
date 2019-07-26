@@ -26,7 +26,7 @@ namespace My.Extensions.Localization.Json
             ILogger logger)
         {
             _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
-            _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourceName));
+            _resourceName = resourceName;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -84,7 +84,7 @@ namespace My.Extensions.Localization.Json
             var culture = CultureInfo.CurrentUICulture;
             var resources = _resourcesCache.GetOrAdd(culture.Name, _ =>
             {
-                var resourceFile = $"{_resourceName}.{culture.Name}.json";
+                var resourceFile = (string.IsNullOrEmpty(_resourceName) ? $"{culture.Name}" : $"{_resourceName}.{culture.Name}") + ".json";
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
                 IEnumerable<KeyValuePair<string, string>> value = null;
 
