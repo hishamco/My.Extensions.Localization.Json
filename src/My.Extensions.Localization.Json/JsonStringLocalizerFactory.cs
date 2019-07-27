@@ -10,10 +10,11 @@ namespace My.Extensions.Localization.Json
     public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         private readonly string _resourcesRelativePath;
+        private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
         private readonly ILoggerFactory _loggerFactory;
 
         public JsonStringLocalizerFactory(
-            IOptions<LocalizationOptions> localizationOptions,
+            IOptions<JsonLocalizationOptions> localizationOptions,
             ILoggerFactory loggerFactory)
         {
             if (localizationOptions == null)
@@ -22,6 +23,7 @@ namespace My.Extensions.Localization.Json
             }
 
             _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
+            _resourcesType = localizationOptions.Value.ResourcesType;
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
 
@@ -52,14 +54,25 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(location));
             }
 
-            return CreateJsonStringLocalizer(location, baseName);
+            var resourcesPath = Path.Combine(location, _resourcesRelativePath);
+
+            return CreateJsonStringLocalizer(resourcesPath, null);
         }
 
         protected virtual JsonStringLocalizer CreateJsonStringLocalizer(
             string resourcesPath,
             string resourcename)
         {
-            return new JsonStringLocalizer(resourcesPath, resourcename, _loggerFactory.CreateLogger<JsonStringLocalizer>());
+            var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
+
+            return _resourcesType == ResourcesType.TypeBased
+                ? new JsonStringLocalizer(
+                    resourcesPath,
+                    resourcename,
+                    logger)
+                : new JsonStringLocalizer(
+                    resourcesPath,
+                    logger);
         }
 
         private string GetResourcePath(Assembly assembly)
