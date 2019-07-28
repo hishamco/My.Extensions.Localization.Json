@@ -14,7 +14,12 @@ namespace LocalizationSample
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            // Keep the following two lined in the same order. Or else, the `ResourcesPath` will not be guaranteed to be the same for both.
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+
+            // Use this when having Mcv.
+            // This use the localization files at the `ResourcesPath` provided above.
+            services.AddMvc().AddDataAnnotationsJsonLocalization();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer1, IStringLocalizer<Model> localizer2)
