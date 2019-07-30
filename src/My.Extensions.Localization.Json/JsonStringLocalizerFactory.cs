@@ -54,9 +54,18 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(location));
             }
 
-            var resourcesPath = Path.Combine(location, _resourcesRelativePath);
+            var assemblyName = new AssemblyName(location);
+            var assembly = Assembly.Load(assemblyName);
+            var applicationRootPath = new DirectoryInfo(assembly.Location).Parent.Parent.Parent.Parent.FullName;
+            var resourcesPath = Path.Combine(applicationRootPath, _resourcesRelativePath);
+            string resourceName = null;
 
-            return CreateJsonStringLocalizer(resourcesPath, null);
+            if (_resourcesType == ResourcesType.TypeBased)
+            {
+                resourceName = TrimPrefix(baseName, location + ".");
+            }
+
+            return CreateJsonStringLocalizer(resourcesPath, resourceName);
         }
 
         protected virtual JsonStringLocalizer CreateJsonStringLocalizer(
@@ -82,6 +91,16 @@ namespace My.Extensions.Localization.Json
             return resourceLocationAttribute == null
                 ? _resourcesRelativePath
                 : resourceLocationAttribute.ResourceLocation;
+        }
+
+        private static string TrimPrefix(string name, string prefix)
+        {
+            if (name.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return name.Substring(prefix.Length);
+            }
+
+            return name;
         }
     }
 }

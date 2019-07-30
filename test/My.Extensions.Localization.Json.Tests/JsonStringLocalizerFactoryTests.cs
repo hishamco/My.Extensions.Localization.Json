@@ -15,41 +15,52 @@ namespace My.Extensions.Localization.Json.Tests
         public JsonStringLocalizerFactoryTests()
         {
             _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
-            _localizationOptions.Setup(o => o.Value)
-                .Returns(() => new JsonLocalizationOptions { ResourcesPath = "Resources" });
             _loggerFactory = NullLoggerFactory.Instance;
         }
 
         [Fact]
         public void JsonStringLocalizerFactory_CreateLocalizerWithType()
         {
+            SetupLocalizationOptions("Resources");
+            LocalizationHelper.SetCurrentCulture("fr-FR");
+
             // Arrange
             var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
 
             // Act
-            LocalizationHelper.SetCurrentCulture("fr-FR");
             var localizer = localizerFactory.Create(typeof(Test));
 
             // Assert
             Assert.NotNull(localizer);
+            Assert.Equal("Bonjour", localizer["Hello"]);
         }
 
-        // Uncomment this test when this https://github.com/hishamco/My.Extensions.Localization.Json/issues/14 bug is fixed
+        [Theory]
+        [InlineData(ResourcesType.TypeBased)]
+        [InlineData(ResourcesType.CultureBased)]
+        public void CreateLocalizerWithBasenameAndLocation(ResourcesType resourcesType)
+        {
+            SetupLocalizationOptions("Resources", resourcesType);
+            LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        //[Fact]
-        //public void CreateLocalizerWithBasenameAndLocation()
-        //{
-        //    // Arrange
-        //    var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
-        //    var basename = nameof(JsonStringLocalizerFactoryTests);
-        //    var location = Path.Combine(nameof(My.Extensions.Localization.Json.Tests), nameof(Test));
+            // Arrange
+            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+            var location = "My.Extensions.Localization.Json.Tests";
+            var basename = $"{location}.{nameof(Test)}";
 
-        //    // Act
-        //    LocalizationHelper.SetCurrentCulture("fr-FR");
-        //    var localizer = localizerFactory.Create(basename, location);
+            // Act
+            var localizer = localizerFactory.Create(basename, location);
 
-        //    // Assert
-        //    Assert.NotNull(localizer);
-        //}
+            // Assert
+            Assert.NotNull(localizer);
+            Assert.Equal("Bonjour", localizer["Hello"]);
+        }
+
+        private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
+            => _localizationOptions.Setup(o => o.Value)
+                .Returns(() => new JsonLocalizationOptions {
+                    ResourcesPath = resourcesPath,
+                    ResourcesType = resourcesType
+                });
     }
 }
