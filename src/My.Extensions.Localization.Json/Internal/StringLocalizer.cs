@@ -11,7 +11,7 @@ namespace My.Extensions.Localization.Json.Internal
 
         public StringLocalizer(IHostingEnvironment env, IStringLocalizerFactory factory)
         {
-            _localizer = factory.Create(string.Empty, env.ContentRootFileProvider.GetFileInfo("/").PhysicalPath);
+            _localizer = factory.Create(string.Empty, PathHelpers.GetApplicationRoot());
         }
 
         public LocalizedString this[string name] => _localizer[name];
