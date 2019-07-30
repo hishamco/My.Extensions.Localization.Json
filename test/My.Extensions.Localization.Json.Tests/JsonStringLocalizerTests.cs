@@ -1,8 +1,15 @@
-﻿using Microsoft.Extensions.Localization;
+﻿using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
+using My.Extensions.Localization.Json.Internal;
 using My.Extensions.Localization.Json.Tests.Common;
 using Xunit;
 
@@ -13,7 +20,6 @@ namespace My.Extensions.Localization.Json.Tests
         private readonly IStringLocalizer _localizer;
         private readonly Mock<IOptions<LocalizationOptions>> _localizationOptions;
         private readonly ILogger _logger;
-        private static readonly string _resourcePath = @"C:\Users\Hisham\Source\Repos\My.Extensions.Localization.Json\test\My.Extensions.Localization.Json.Tests\Resources";
 
         public JsonStringLocalizerTests()
         {
@@ -21,7 +27,9 @@ namespace My.Extensions.Localization.Json.Tests
             _localizationOptions.Setup(o => o.Value)
                 .Returns(() => new LocalizationOptions { ResourcesPath = "Resources" });
             _logger = NullLogger.Instance;
-            _localizer = new JsonStringLocalizer(_resourcePath, nameof(Test), _logger);
+
+            var resourcePath = Path.Combine(PathHelpers.GetApplicationRoot(), _localizationOptions.Object.Value.ResourcesPath);
+            _localizer = new JsonStringLocalizer(resourcePath, nameof(Test), _logger);
         }
 
         [Theory]
@@ -57,6 +65,41 @@ namespace My.Extensions.Localization.Json.Tests
 
             // Assert
             Assert.Equal(expected, translation);
+        }
+
+        [Fact]
+        public async void CultureBasedResourcesUsesUsesIStringLocalizer()
+        {
+            var webHostBuilder = new WebHostBuilder()
+                .ConfigureServices(services =>
+                {
+                    services.AddJsonLocalization(options =>
+                    {
+                        options.ResourcesPath = "Resources";
+                        options.ResourcesType = ResourcesType.CultureBased;
+                    });
+                })
+                .Configure(app =>
+                {
+                    app.UseRequestLocalization("en-US", "fr-FR");
+
+                    app.Run(context =>
+                    {
+                        var localizer = context.RequestServices.GetService<IStringLocalizer<JsonStringLocalizer>>();
+
+                        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+                        Assert.Equal("Bonjour", localizer["Hello"]);
+
+                        return Task.FromResult(0);
+                    });
+                });
+
+            using (var server = new TestServer(webHostBuilder))
+            {
+                var client = server.CreateClient();
+                var response = await client.GetAsync("/");
+            }
         }
     }
 }

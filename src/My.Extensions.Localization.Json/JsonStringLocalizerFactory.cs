@@ -4,6 +4,7 @@ using System.Reflection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
 {
@@ -36,8 +37,7 @@ namespace My.Extensions.Localization.Json
 
             var typeInfo = resourceSource.GetTypeInfo();
             var assembly = typeInfo.Assembly;
-            var applicationRootPath = new DirectoryInfo(assembly.Location).Parent.Parent.Parent.Parent.Parent.FullName;
-            var resourcesPath = Path.Combine(applicationRootPath, assembly.GetName().Name, GetResourcePath(assembly));
+            var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
 
             return CreateJsonStringLocalizer(resourcesPath, typeInfo.Name);
         }
@@ -56,8 +56,7 @@ namespace My.Extensions.Localization.Json
 
             var assemblyName = new AssemblyName(location);
             var assembly = Assembly.Load(assemblyName);
-            var applicationRootPath = new DirectoryInfo(assembly.Location).Parent.Parent.Parent.Parent.FullName;
-            var resourcesPath = Path.Combine(applicationRootPath, _resourcesRelativePath);
+            var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             string resourceName = null;
 
             if (_resourcesType == ResourcesType.TypeBased)
