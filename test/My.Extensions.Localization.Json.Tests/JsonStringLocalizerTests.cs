@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -65,6 +67,23 @@ namespace My.Extensions.Localization.Json.Tests
 
             // Assert
             Assert.Equal(expected, translation);
+        }
+
+
+        [Theory]
+        [InlineData(true, 3)]
+        [InlineData(false, 2)]
+        public void JsonStringLocalizer_GetAllStrings(bool includeParent, int expected)
+        {
+            // Arrange
+            IEnumerable<LocalizedString> localizedStrings = null;
+
+            // Act
+            LocalizationHelper.SetCurrentCulture("fr-FR");
+            localizedStrings = _localizer.GetAllStrings(includeParent);
+
+            // Assert
+            Assert.Equal(expected, localizedStrings.Count());
         }
 
         [Fact]

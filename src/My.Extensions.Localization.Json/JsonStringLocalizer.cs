@@ -72,14 +72,24 @@ namespace My.Extensions.Localization.Json
         public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) =>
             GetAllStrings(includeParentCultures, CultureInfo.CurrentUICulture);
 
-        public IStringLocalizer WithCulture(CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+        public IStringLocalizer WithCulture(CultureInfo culture) => this;
 
         protected IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            if (culture == null)
+            {
+                throw new ArgumentNullException(nameof(culture));
+            }
+
+            var resourceNames = includeParentCultures
+                ? GetAllStringsFromCultureHierarchy(culture)
+                : GetAllResourceStrings(culture);
+
+            foreach (var name in resourceNames)
+            {
+                var value = GetStringSafely(name);
+                yield return new LocalizedString(name, value ?? name, resourceNotFound: value == null, searchedLocation: _searchedLocation);
+            }
         }
 
         protected string GetStringSafely(string name)
@@ -90,9 +100,66 @@ namespace My.Extensions.Localization.Json
             }
 
             var culture = CultureInfo.CurrentUICulture;
-            var resources = _resourcesCache.GetOrAdd(culture.Name, _ =>
+            string value = null;
+
+            BuildResourcesCache(culture.Name);
+
+            if (_resourcesCache.TryGetValue(culture.Name, out IEnumerable<KeyValuePair<string, string>> resources))
             {
-                var resourceFile = $"{culture.Name}.json";
+                var resource = resources?.SingleOrDefault(s => s.Key == name);
+
+                value = resource?.Value ?? null;
+                _logger.SearchedLocation(name, _searchedLocation, culture);
+            }
+
+            return value;
+        }
+
+        private IEnumerable<string> GetAllStringsFromCultureHierarchy(CultureInfo startingCulture)
+        {
+            var currentCulture = startingCulture;
+            var resourceNames = new HashSet<string>();
+
+            while (currentCulture != currentCulture.Parent)
+            {
+                var cultureResourceNames = GetAllResourceStrings(currentCulture);
+
+                if (cultureResourceNames != null)
+                {
+                    foreach (var resourceName in cultureResourceNames)
+                    {
+                        resourceNames.Add(resourceName);
+                    }
+                }
+
+                currentCulture = currentCulture.Parent;
+            }
+
+            return resourceNames;
+        }
+
+        private IEnumerable<string> GetAllResourceStrings(CultureInfo culture)
+        {
+            BuildResourcesCache(culture.Name);
+
+            if (_resourcesCache.TryGetValue(culture.Name, out IEnumerable<KeyValuePair<string, string>> resources))
+            {
+                foreach (var resource in resources)
+                {
+                    yield return resource.Key;
+                }
+            }
+            else
+            {
+                yield return null;
+            }
+        }
+
+        private void BuildResourcesCache(string culture)
+        {
+            _resourcesCache.GetOrAdd(culture, _ =>
+            {
+                var resourceFile = $"{culture}.json";
                 if (_resourceName != null)
                 {
                     resourceFile = String.Join(".", _resourceName, resourceFile);
@@ -113,10 +180,6 @@ namespace My.Extensions.Localization.Json
 
                 return value;
             });
-            var resource = resources?.SingleOrDefault(s => s.Key == name);
-            _logger.SearchedLocation(name, _searchedLocation, culture);
-
-            return resource?.Value ?? null;
         }
     }
 }
