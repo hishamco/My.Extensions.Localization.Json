@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using LocalizationSample.Resources;
+using My.Extensions.Localization.Json;
 
 namespace LocalizationSample
 {
@@ -17,7 +18,7 @@ namespace LocalizationSample
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer1, IStringLocalizer<Model> localizer2)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IJsonStringLocalizer<Startup> localizer1, IStringLocalizer<Model> localizer2)
         {
             var supportedCultures = new List<CultureInfo>
             {
@@ -40,8 +41,11 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync($"{localizer1["Hello"]} - {localizer2["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer1[p => p.Hello]} - {localizer2["Hello"]}!!");
             });
         }
+
+        // Just for strongly typed resource
+        public string Hello { get; set; }
     }
 }
