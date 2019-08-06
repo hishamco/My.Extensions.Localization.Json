@@ -44,6 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static void AddJsonLocalizationServices(IServiceCollection services)
         {
             services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+            services.TryAddTransient(typeof(IJsonStringLocalizer<>), typeof(JsonStringLocalizer<>));
             services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
             services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
         }
