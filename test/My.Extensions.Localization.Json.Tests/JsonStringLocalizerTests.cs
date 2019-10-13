@@ -69,6 +69,19 @@ namespace My.Extensions.Localization.Json.Tests
             Assert.Equal(expected, translation);
         }
 
+        [Fact]
+        public void GetTranslation_StronglyTypeResourceName()
+        {
+            // Arrange
+            string translation = null;
+
+            // Act
+            LocalizationHelper.SetCurrentCulture("ar");
+            translation = _localizer.GetString<SharedResource>(r => r.Hello);
+
+            // Assert
+            Assert.Equal("مرحبا", translation);
+        }
 
         [Theory]
         [InlineData(true, 3)]
@@ -119,6 +132,13 @@ namespace My.Extensions.Localization.Json.Tests
                 var client = server.CreateClient();
                 var response = await client.GetAsync("/");
             }
+        }
+
+        private class SharedResource
+        {
+            public string Hello { get; set; }
+
+            public string Bye { get; set; }
         }
     }
 }
