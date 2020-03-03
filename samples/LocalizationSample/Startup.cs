@@ -17,7 +17,7 @@ namespace LocalizationSample
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer<Startup> localizer)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer localizer1, IStringLocalizer<Startup> localizer2)
         {
             var supportedCultures = new List<CultureInfo>
             {
@@ -40,7 +40,8 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync($"{localizer["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
             });
         }
 

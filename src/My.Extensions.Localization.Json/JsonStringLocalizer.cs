@@ -20,7 +20,7 @@ namespace My.Extensions.Localization.Json
         private readonly ILogger _logger;
 
         private string _searchedLocation;
-        
+
         public JsonStringLocalizer(
             string resourcesPath,
             string resourceName,
@@ -160,11 +160,9 @@ namespace My.Extensions.Localization.Json
         {
             _resourcesCache.GetOrAdd(culture, _ =>
             {
-                var resourceFile = $"{culture}.json";
-                if (_resourceName != null)
-                {
-                    resourceFile = String.Join(".", _resourceName, resourceFile);
-                }
+                var resourceFile = string.IsNullOrEmpty(_resourceName)
+                    ? $"{culture}.json"
+                    : $"{_resourceName}.{culture}.json";
 
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
                 IEnumerable<KeyValuePair<string, string>> value = null;
