@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
-using LocalizationSample.Resources;
 
 namespace LocalizationSample
 {
@@ -17,7 +17,7 @@ namespace LocalizationSample
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer<Startup> localizer)
         {
             var supportedCultures = new List<CultureInfo>
             {
