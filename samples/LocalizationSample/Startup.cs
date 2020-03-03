@@ -17,7 +17,7 @@ namespace LocalizationSample
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Model> localizer)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IStringLocalizer<Startup> localizer)
         {
             var supportedCultures = new List<CultureInfo>
             {
