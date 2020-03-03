@@ -54,8 +54,7 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(location));
             }
 
-            var assemblyName = new AssemblyName(location);
-            var assembly = Assembly.Load(assemblyName);
+            var assembly = Assembly.GetExecutingAssembly();
             var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             string resourceName = null;
 
