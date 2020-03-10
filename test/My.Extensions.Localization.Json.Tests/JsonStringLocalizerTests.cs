@@ -70,6 +70,27 @@ namespace My.Extensions.Localization.Json.Tests
             Assert.Equal(expected, translation);
         }
 
+        [Theory]
+        [InlineData("fr-FR", "Hello", "Bonjour")]
+        [InlineData("fr-FR", "Hello, {0}", "Bonjour, {0}")]
+        [InlineData("fr-FR", "Yes", "Oui")]
+        [InlineData("fr-FR", "No", "No")]
+        [InlineData("fr", "Hello", "Bonjour")]
+        [InlineData("fr", "Yes", "Oui")]
+        [InlineData("fr", "No", "No")]
+        public void GetTranslationWithCultureFallback(string culture, string name, string expected)
+        {
+            // Arrange
+            string translation = null;
+
+            // Act
+            LocalizationHelper.SetCurrentCulture(culture);
+            translation = _localizer[name];
+
+            // Assert
+            Assert.Equal(expected, translation);
+        }
+
         [Fact]
         public void GetTranslation_StronglyTypeResourceName()
         {
