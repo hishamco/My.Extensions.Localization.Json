@@ -52,6 +52,7 @@ namespace My.Extensions.Localization.Json.Tests
             Assert.Equal(expected, translation);
         }
 
+        [Theory]
         [InlineData("fr-FR", "Hello {0}", "Bonjour Hisham", "Hisham")]
         [InlineData("fr-FR", "Bye {0}", "Bye Hisham", "Hisham")]
         [InlineData("ar", "Hello {0}", "مرحبا هشام", "هشام")]
