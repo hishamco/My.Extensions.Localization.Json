@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Linq.Expressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -103,14 +102,24 @@ namespace My.Extensions.Localization.Json
             var culture = CultureInfo.CurrentUICulture;
             string value = null;
 
-            BuildResourcesCache(culture.Name);
-
-            if (_resourcesCache.TryGetValue(culture.Name, out IEnumerable<KeyValuePair<string, string>> resources))
+            while (culture != culture.Parent)
             {
-                var resource = resources?.SingleOrDefault(s => s.Key == name);
+                BuildResourcesCache(culture.Name);
 
-                value = resource?.Value ?? null;
-                _logger.SearchedLocation(name, _searchedLocation, culture);
+                if (_resourcesCache.TryGetValue(culture.Name, out IEnumerable<KeyValuePair<string, string>> resources))
+                {
+                    var resource = resources?.SingleOrDefault(s => s.Key == name);
+
+                    value = resource?.Value ?? null;
+                    _logger.SearchedLocation(name, _searchedLocation, culture);
+
+                    if (value != null)
+                    {
+                        break;
+                    }
+
+                    culture = culture.Parent;
+                }
             }
 
             return value;
