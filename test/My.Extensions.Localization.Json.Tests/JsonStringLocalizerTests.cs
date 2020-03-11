@@ -53,10 +53,12 @@ namespace My.Extensions.Localization.Json.Tests
         }
 
         [Theory]
-        [InlineData("fr-FR", "Hello {0}", "Bonjour Hisham", "Hisham")]
+        [InlineData("fr-FR", "Hello, {0}", "Bonjour, Hisham", "Hisham")]
         [InlineData("fr-FR", "Bye {0}", "Bye Hisham", "Hisham")]
-        [InlineData("ar", "Hello {0}", "مرحبا هشام", "هشام")]
+        [InlineData("ar", "Hello, {0}", "مرحبا, هشام", "هشام")]
         [InlineData("ar", "Bye {0}", "Bye هشام", "هشام")]
+        [InlineData("es-ES", "Hello, {0}", "Hello there, Hisham", "Hisham")] // Culture that has an 'es' fallback file, but the key isn't in there
+        [InlineData("nb-NO", "Hello, {0}", "Hello there, Hisham", "Hisham")] // Culture that doesn't have an 'nb' fallback file
         public void GetTranslationWithArgs(string culture, string name, string expected, string arg)
         {
             // Arrange
@@ -78,6 +80,10 @@ namespace My.Extensions.Localization.Json.Tests
         [InlineData("fr", "Hello", "Bonjour")]
         [InlineData("fr", "Yes", "Oui")]
         [InlineData("fr", "No", "No")]
+        [InlineData("ar-BH", "Hello", "مرحبا")] // Culture that doesn't have an 'ar-BH'-file falls back to the 'ar'-file
+        [InlineData("es-ES", "Hello", "Hola")] // Culture that doesn't have an 'es-ES'-file falls back to the 'es'-file
+        [InlineData("nb", "Hello", "Hello there")] // Culture that doesn't have an 'nb'-file falls back to the root resource file
+        [InlineData("nb-NO", "Hello", "Hello there")] // Culture that doesn't have an 'nb-NO'- OR 'nb'-file falls back to the root resource file
         public void GetTranslationWithCultureFallback(string culture, string name, string expected)
         {
             // Arrange

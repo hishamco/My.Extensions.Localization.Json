@@ -17,6 +17,7 @@ namespace My.Extensions.Localization.Json
         private readonly string _resourcesPath;
         private readonly string _resourceName;
         private readonly ILogger _logger;
+        private const string ROOT_RESOURCE_CACHE_NAME = "root";
 
         private string _searchedLocation;
 
@@ -104,22 +105,35 @@ namespace My.Extensions.Localization.Json
 
             while (culture != culture.Parent)
             {
-                BuildResourcesCache(culture.Name);
+                value = GetStringSafely(name, culture);
+                _logger.SearchedLocation(name, _searchedLocation, culture);
 
-                if (_resourcesCache.TryGetValue(culture.Name, out IEnumerable<KeyValuePair<string, string>> resources))
+                if (value != null)
                 {
-                    var resource = resources?.SingleOrDefault(s => s.Key == name);
-
-                    value = resource?.Value ?? null;
-                    _logger.SearchedLocation(name, _searchedLocation, culture);
-
-                    if (value != null)
-                    {
-                        break;
-                    }
-
-                    culture = culture.Parent;
+                    break;
                 }
+
+                culture = culture.Parent;
+            }
+
+            if (value == null)
+            {
+                value = GetStringSafely(name, null);
+            }
+
+            return value;
+        }
+
+        private string GetStringSafely(string name, CultureInfo culture)
+        {
+            string value = null;
+            BuildResourcesCache(culture?.Name);
+
+            if (_resourcesCache.TryGetValue(culture?.Name ?? ROOT_RESOURCE_CACHE_NAME, out IEnumerable<KeyValuePair<string, string>> resources))
+            {
+                var resource = resources?.SingleOrDefault(s => s.Key == name);
+
+                value = resource?.Value ?? null;
             }
 
             return value;
@@ -165,13 +179,23 @@ namespace My.Extensions.Localization.Json
             }
         }
 
-        private void BuildResourcesCache(string culture)
+        private void BuildResourcesCache(string culture = null)
         {
-            _resourcesCache.GetOrAdd(culture, _ =>
+            var cacheName = culture ?? ROOT_RESOURCE_CACHE_NAME;
+            _resourcesCache.GetOrAdd(cacheName, _ =>
             {
-                var resourceFile = string.IsNullOrEmpty(_resourceName)
-                    ? $"{culture}.json"
-                    : $"{_resourceName}.{culture}.json";
+                var resourceFile = $"{culture}.json";
+                if (!string.IsNullOrEmpty(_resourceName))
+                {
+                    if (culture != null)
+                    {
+                        resourceFile = $"{_resourceName}.{culture}.json";
+                    }
+                    else
+                    {
+                        resourceFile = $"{_resourceName}.json";
+                    }
+                }
 
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
                 IEnumerable<KeyValuePair<string, string>> value = null;
