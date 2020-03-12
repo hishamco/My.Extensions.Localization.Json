@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
@@ -31,7 +32,7 @@ namespace My.Extensions.Localization.Json.Tests
             _logger = NullLogger.Instance;
 
             var resourcePath = Path.Combine(PathHelpers.GetApplicationRoot(), _localizationOptions.Object.Value.ResourcesPath);
-            _localizer = new JsonStringLocalizer(resourcePath, nameof(Test), _logger);
+            _localizer = new JsonStringLocalizer("en-GB", resourcePath, nameof(Test), _logger);
         }
 
         [Theory]
@@ -53,9 +54,9 @@ namespace My.Extensions.Localization.Json.Tests
         }
 
         [Theory]
-        [InlineData("fr-FR", "Hello {0}", "Bonjour Hisham", "Hisham")]
+        [InlineData("fr-FR", "Hello, {0}", "Bonjour, Hisham", "Hisham")]
         [InlineData("fr-FR", "Bye {0}", "Bye Hisham", "Hisham")]
-        [InlineData("ar", "Hello {0}", "مرحبا هشام", "هشام")]
+        [InlineData("ar", "Hello, {0}", "مرحبا, هشام", "هشام")]
         [InlineData("ar", "Bye {0}", "Bye هشام", "هشام")]
         public void GetTranslationWithArgs(string culture, string name, string expected, string arg)
         {
@@ -153,6 +154,52 @@ namespace My.Extensions.Localization.Json.Tests
             {
                 var client = server.CreateClient();
                 var response = await client.GetAsync("/");
+            }
+        }
+
+        [Fact]
+        public async void CultureFallbackToDefaultCultureIfTheKeyNotFound()
+        {
+            var webHostBuilder = new WebHostBuilder()
+                .UseStartup<LocalizationFallBackStartup>();
+
+            using (var server = new TestServer(webHostBuilder))
+            {
+                var client = server.CreateClient();
+                var response = await client.GetAsync("/");
+                var content = await response.Content.ReadAsStringAsync();
+
+                Assert.Equal("Non", content);
+            }
+        }
+
+        public class LocalizationFallBackStartup
+        {
+            public void ConfigureServices(IServiceCollection services)
+            {
+                services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+
+                services.Configure<RequestLocalizationOptions>(options =>
+                {
+                    var supportedCultures = new[] { "fr-FR", "en" };
+                    
+                    options
+                        .AddSupportedCultures(supportedCultures)
+                        .AddSupportedUICultures(supportedCultures)
+                        .SetDefaultCulture(supportedCultures.First());
+                });
+            }
+
+            public void Configure(IApplicationBuilder app, IStringLocalizer<Test> localizer)
+            {
+                var localizatioOptions = app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>();
+                
+                app.UseRequestLocalization(localizatioOptions.Value);
+
+                app.Run(async (context) =>
+                {
+                    await context.Response.WriteAsync(localizer["No"]);
+                });
             }
         }
 

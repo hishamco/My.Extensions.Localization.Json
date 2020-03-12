@@ -14,6 +14,7 @@ namespace My.Extensions.Localization.Json
     public class JsonStringLocalizer : IStringLocalizer
     {
         private readonly ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>> _resourcesCache = new ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>>();
+        private readonly string _defaultCulture;
         private readonly string _resourcesPath;
         private readonly string _resourceName;
         private readonly ILogger _logger;
@@ -21,19 +22,23 @@ namespace My.Extensions.Localization.Json
         private string _searchedLocation;
 
         public JsonStringLocalizer(
+            string defaultCulture,
             string resourcesPath,
             string resourceName,
             ILogger logger)
         {
+            _defaultCulture = defaultCulture ?? throw new ArgumentNullException(nameof(defaultCulture));
             _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
             _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourcesPath));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         internal JsonStringLocalizer(
+            string defaultCulture,
             string resourcesPath,
             ILogger logger)
         {
+            _defaultCulture = defaultCulture ?? throw new ArgumentNullException(nameof(defaultCulture));
             _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -100,6 +105,7 @@ namespace My.Extensions.Localization.Json
             }
 
             var culture = CultureInfo.CurrentUICulture;
+            var requestedCulture = culture;
             string value = null;
 
             while (culture != culture.Parent)
@@ -119,6 +125,20 @@ namespace My.Extensions.Localization.Json
                     }
 
                     culture = culture.Parent;
+                }
+            }
+
+            if (value == null && requestedCulture.Name == _defaultCulture)
+            {
+                var invariantCulture = CultureInfo.InvariantCulture.Name;
+                BuildResourcesCache(invariantCulture, fallbackToDefaultCulture: true);
+
+                if (_resourcesCache.TryGetValue(invariantCulture, out IEnumerable<KeyValuePair<string, string>> resources))
+                {
+                    var resource = resources?.SingleOrDefault(s => s.Key == name);
+
+                    value = resource?.Value ?? null;
+                    _logger.SearchedLocation(name, _searchedLocation, requestedCulture);
                 }
             }
 
@@ -165,14 +185,16 @@ namespace My.Extensions.Localization.Json
             }
         }
 
-        private void BuildResourcesCache(string culture)
+        private void BuildResourcesCache(string culture, bool fallbackToDefaultCulture = false)
         {
             _resourcesCache.GetOrAdd(culture, _ =>
             {
                 var resourceFile = string.IsNullOrEmpty(_resourceName)
                     ? $"{culture}.json"
-                    : $"{_resourceName}.{culture}.json";
-
+                    : fallbackToDefaultCulture
+                        ? $"{_resourceName}.json"
+                        : $"{_resourceName}.{culture}.json";
+                
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
                 IEnumerable<KeyValuePair<string, string>> value = null;
 
