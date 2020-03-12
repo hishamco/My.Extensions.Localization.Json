@@ -22,19 +22,11 @@ namespace My.Extensions.Localization.Json
 
         public JsonStringLocalizer(
             string resourcesPath,
-            string resourceName,
+            string resourceName, // TODO: Use optional parameter in upcoming major release
             ILogger logger)
         {
             _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
-            _resourceName = resourceName ?? throw new ArgumentNullException(nameof(resourcesPath));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        internal JsonStringLocalizer(
-            string resourcesPath,
-            ILogger logger)
-        {
-            _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
+            _resourceName = resourceName;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

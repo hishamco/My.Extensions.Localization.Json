@@ -72,14 +72,10 @@ namespace My.Extensions.Localization.Json
         {
             var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
-            return _resourcesType == ResourcesType.TypeBased
-                ? new JsonStringLocalizer(
-                    resourcesPath,
-                    resourcename,
-                    logger)
-                : new JsonStringLocalizer(
-                    resourcesPath,
-                    logger);
+            return new JsonStringLocalizer(
+                resourcesPath,
+                _resourcesType == ResourcesType.TypeBased ? resourcename : null,
+                logger);
         }
 
         private string GetResourcePath(Assembly assembly)
