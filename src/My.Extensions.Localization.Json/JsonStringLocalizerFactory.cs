@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -10,12 +11,14 @@ namespace My.Extensions.Localization.Json
 {
     public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
+        private readonly string _defaultCulture;
         private readonly string _resourcesRelativePath;
         private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
         private readonly ILoggerFactory _loggerFactory;
 
         public JsonStringLocalizerFactory(
             IOptions<JsonLocalizationOptions> localizationOptions,
+            IOptions<RequestLocalizationOptions> requestLocalizationOptions,
             ILoggerFactory loggerFactory)
         {
             if (localizationOptions == null)
@@ -23,6 +26,12 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(localizationOptions));
             }
 
+            if (requestLocalizationOptions == null)
+            {
+                throw new ArgumentNullException(nameof(requestLocalizationOptions));
+            }
+
+            _defaultCulture = requestLocalizationOptions.Value.DefaultRequestCulture.UICulture.Name;
             _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
             _resourcesType = localizationOptions.Value.ResourcesType;
             _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -74,10 +83,12 @@ namespace My.Extensions.Localization.Json
 
             return _resourcesType == ResourcesType.TypeBased
                 ? new JsonStringLocalizer(
+                    _defaultCulture,
                     resourcesPath,
                     resourcename,
                     logger)
                 : new JsonStringLocalizer(
+                    _defaultCulture,
                     resourcesPath,
                     logger);
         }
