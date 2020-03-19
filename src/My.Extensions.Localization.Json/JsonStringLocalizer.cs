@@ -84,7 +84,7 @@ namespace My.Extensions.Localization.Json
             }
         }
 
-        protected string GetStringSafely(string name)
+        protected virtual string GetStringSafely(string name)
         {
             if (name == null)
             {
