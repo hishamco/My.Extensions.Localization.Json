@@ -13,12 +13,12 @@ namespace My.Extensions.Localization.Json
 {
     public class JsonStringLocalizer : IStringLocalizer
     {
-        private readonly ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>> _resourcesCache = new ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>>();
+        protected readonly ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>> _resourcesCache = new ConcurrentDictionary<string, IEnumerable<KeyValuePair<string, string>>>();
+        protected string _searchedLocation;
+        
         private readonly string _resourcesPath;
         private readonly string _resourceName;
         private readonly ILogger _logger;
-
-        private string _searchedLocation;
 
         public JsonStringLocalizer(
             string resourcesPath,
@@ -84,7 +84,7 @@ namespace My.Extensions.Localization.Json
             }
         }
 
-        protected string GetStringSafely(string name)
+        protected virtual string GetStringSafely(string name)
         {
             if (name == null)
             {

@@ -5,8 +5,10 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
+using My.Extensions.Localization.Json;
 
 namespace LocalizationSample
 {
@@ -14,10 +16,14 @@ namespace LocalizationSample
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            //services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.TryAddSingleton<IStringLocalizerFactory, CustomJsonStringLocalizerFactory>();
+            services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
+
+            services.Configure<JsonLocalizationOptions>(options => options.ResourcesPath = "Resources");
         }
 
-        public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer localizer1, IStringLocalizer<Startup> localizer2)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer<Startup> localizer)
         {
             var supportedCultures = new List<CultureInfo>
             {
@@ -40,8 +46,8 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
-                await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer["Yes"]}!!");
             });
         }
 
