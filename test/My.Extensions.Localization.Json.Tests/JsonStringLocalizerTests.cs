@@ -53,9 +53,9 @@ namespace My.Extensions.Localization.Json.Tests
         }
 
         [Theory]
-        [InlineData("fr-FR", "Hello {0}", "Bonjour Hisham", "Hisham")]
+        [InlineData("fr-FR", "Hello, {0}", "Bonjour, Hisham", "Hisham")]
         [InlineData("fr-FR", "Bye {0}", "Bye Hisham", "Hisham")]
-        [InlineData("ar", "Hello {0}", "مرحبا هشام", "هشام")]
+        [InlineData("ar", "Hello, {0}", "مرحبا, هشام", "هشام")]
         [InlineData("ar", "Bye {0}", "Bye هشام", "هشام")]
         public void GetTranslationWithArgs(string culture, string name, string expected, string arg)
         {
