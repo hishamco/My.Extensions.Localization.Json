@@ -166,6 +166,7 @@ namespace My.Extensions.Localization.Json
                     : $"{_resourceName}.{culture}.json";
 
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
+                
                 IEnumerable<KeyValuePair<string, string>> value = null;
 
                 if (File.Exists(_searchedLocation))
