@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Mvc.Localization;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Localization;
 using My.Extensions.Localization.Json;
@@ -44,6 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         internal static void AddJsonLocalizationServices(IServiceCollection services)
         {
             services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+            services.AddSingleton<IHtmlLocalizerFactory, JsonHtmlLocalizerFactory>();
             services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
             services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
         }
