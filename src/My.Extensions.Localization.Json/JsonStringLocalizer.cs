@@ -25,8 +25,7 @@ namespace My.Extensions.Localization.Json
             string resourceName, // TODO: Use optional parameter in upcoming major release
             ILogger logger)
         {
-            var path = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
-            _resourcesPath = Path.Combine(Directory.GetCurrentDirectory(), path);
+            _resourcesPath = resourcesPath ?? throw new ArgumentNullException(nameof(resourcesPath));
             _resourceName = resourceName;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -167,8 +166,6 @@ namespace My.Extensions.Localization.Json
                     : $"{_resourceName}.{culture}.json";
 
                 _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
-                //_searchedLocation = Path.Combine(Directory.GetCurrentDirectory(), _resourcesPath, resourceFile);
-                // the above code has no effect on the issue, check the ctor for the solution
                 
                 IEnumerable<KeyValuePair<string, string>> value = null;
 
