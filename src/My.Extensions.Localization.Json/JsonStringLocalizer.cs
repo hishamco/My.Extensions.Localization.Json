@@ -165,7 +165,18 @@ namespace My.Extensions.Localization.Json
                     ? $"{culture}.json"
                     : $"{_resourceName}.{culture}.json";
 
-                _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
+                _searchedLocation = Path.Combine( _resourcesPath, resourceFile);
+                
+                if (resourceFile.StartsWith("Views"))
+                {
+                    if (!File.Exists(_searchedLocation))
+                    {
+                        var resourceFileWithoutExtension = Path.GetFileNameWithoutExtension(resourceFile);
+                        var resourceFileWithoutCulture = resourceFileWithoutExtension.Substring(0, resourceFileWithoutExtension.LastIndexOf('.'));
+                        resourceFile = $"{resourceFileWithoutCulture.Replace('.', Path.DirectorySeparatorChar)}.{culture}.json";
+                        _searchedLocation = Path.Combine(_resourcesPath, resourceFile);
+                    }
+                }
                 
                 IEnumerable<KeyValuePair<string, string>> value = null;
 

@@ -35,5 +35,23 @@ namespace LocalizationSample.Mvc.FunctionalTest
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains(expected, content);
         }
+
+        [Fact]
+        public async Task LocalizeViewWithPathConventions()
+        {
+            // Arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, "/");
+            var culture = "fr-FR";
+            var cookieValue = $"c={culture}|uic={culture}";
+            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+
+            // Act
+            var response = await _client.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("Bienvenu", content);
+        }
     }
 }
