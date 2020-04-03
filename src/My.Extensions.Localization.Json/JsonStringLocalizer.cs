@@ -166,10 +166,10 @@ namespace My.Extensions.Localization.Json
                     : $"{_resourceName}.{culture}.json";
 
                 _searchedLocation = Path.Combine( _resourcesPath, resourceFile);
-                
-                if (resourceFile.StartsWith("Views"))
+
+                if (!File.Exists(_searchedLocation))
                 {
-                    if (!File.Exists(_searchedLocation))
+                    if (resourceFile.Count(r => r == '.') > 1)
                     {
                         var resourceFileWithoutExtension = Path.GetFileNameWithoutExtension(resourceFile);
                         var resourceFileWithoutCulture = resourceFileWithoutExtension.Substring(0, resourceFileWithoutExtension.LastIndexOf('.'));

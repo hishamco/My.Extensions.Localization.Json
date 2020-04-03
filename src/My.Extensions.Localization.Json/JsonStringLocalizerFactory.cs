@@ -37,9 +37,13 @@ namespace My.Extensions.Localization.Json
 
             var typeInfo = resourceSource.GetTypeInfo();
             var assembly = typeInfo.Assembly;
+            var assemblyName = resourceSource.Assembly.GetName().Name;
+            var typeName = $"{assemblyName}.{typeInfo.Name}" == typeInfo.FullName
+                ? typeInfo.Name
+                : typeInfo.FullName.Substring(assemblyName.Length + 1);
             var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
 
-            return CreateJsonStringLocalizer(resourcesPath, typeInfo.Name);
+            return CreateJsonStringLocalizer(resourcesPath, typeName);
         }
 
         public IStringLocalizer Create(string baseName, string location)
@@ -54,7 +58,8 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(location));
             }
 
-            var assembly = Assembly.GetExecutingAssembly();
+            var assemblyName = new AssemblyName(location);
+            var assembly = Assembly.Load(assemblyName);
             var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             string resourceName = null;
 
