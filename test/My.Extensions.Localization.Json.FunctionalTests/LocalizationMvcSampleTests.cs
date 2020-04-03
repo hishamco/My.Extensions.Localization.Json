@@ -23,7 +23,7 @@ namespace LocalizationSample.Mvc.FunctionalTest
             var url = "/Home/Privacy";
 
             // Act
-            var response = await _client.GetAsync($"{url}/?culture-{culture}&ui-culture={culture}");
+            var response = await _client.GetAsync($"{url}/?culture={culture}&ui-culture={culture}");
             var content = await response.Content.ReadAsStringAsync();
 
             // Assert
