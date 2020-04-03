@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
@@ -7,11 +6,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
-using My.Extensions.Localization.Json.Internal;
 using My.Extensions.Localization.Json.Tests.Common;
 using Xunit;
 
@@ -20,18 +17,17 @@ namespace My.Extensions.Localization.Json.Tests
     public class JsonStringLocalizerTests
     {
         private readonly IStringLocalizer _localizer;
-        private readonly Mock<IOptions<LocalizationOptions>> _localizationOptions;
-        private readonly ILogger _logger;
+        private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions;
 
         public JsonStringLocalizerTests()
         {
-            _localizationOptions = new Mock<IOptions<LocalizationOptions>>();
+            var _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
             _localizationOptions.Setup(o => o.Value)
-                .Returns(() => new LocalizationOptions { ResourcesPath = "Resources" });
-            _logger = NullLogger.Instance;
-
-            var resourcePath = Path.Combine(PathHelpers.GetApplicationRoot(), _localizationOptions.Object.Value.ResourcesPath);
-            _localizer = new JsonStringLocalizer(resourcePath, nameof(Test), _logger);
+                .Returns(() => new JsonLocalizationOptions { ResourcesPath = "Resources" });
+            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, NullLoggerFactory.Instance);
+            var location = "My.Extensions.Localization.Json.Tests";
+            var basename = $"{location}.Common.{nameof(Test)}";
+            _localizer = localizerFactory.Create(basename, location);
         }
 
         [Theory]

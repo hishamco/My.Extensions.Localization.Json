@@ -53,5 +53,24 @@ namespace LocalizationSample.Mvc.FunctionalTest
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             Assert.Contains("Bienvenu", content);
         }
+
+        [Fact]
+        public async Task StringLocalizeShouldWorkWithControllersPrefix()
+        {
+            // Arrange
+            var url = "/Home/Privacy";
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var culture = "fr-FR";
+            var cookieValue = $"c={culture}|uic={culture}";
+            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+
+            // Act
+            var response = await _client.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("Utilisez cette page pour détailler la politique de confidentialité de votre site.", WebUtility.HtmlDecode(content));
+        }
     }
 }

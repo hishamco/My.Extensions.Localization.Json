@@ -21,13 +21,13 @@
     <None Update="Resources\fr-FR.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Test.ar.json">
+    <None Update="Resources\Common\Test.ar.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Test.fr-FR.json">
+    <None Update="Resources\Common\Test.fr-FR.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Resources\Test.fr.json">
+    <None Update="Resources\Common\Test.fr.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

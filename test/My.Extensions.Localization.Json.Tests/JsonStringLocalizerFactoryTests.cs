@@ -46,7 +46,7 @@ namespace My.Extensions.Localization.Json.Tests
             // Arrange
             var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
             var location = "My.Extensions.Localization.Json.Tests";
-            var basename = $"{location}.{nameof(Test)}";
+            var basename = $"{location}.Common.{nameof(Test)}";
 
             // Act
             var localizer = localizerFactory.Create(basename, location);
