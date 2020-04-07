@@ -43,6 +43,8 @@ namespace My.Extensions.Localization.Json
                 : typeInfo.FullName.Substring(assemblyName.Length + 1);
             var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
 
+            typeName = TryFixInnerClassPath(typeName);
+
             return CreateJsonStringLocalizer(resourcesPath, typeName);
         }
 
@@ -57,6 +59,8 @@ namespace My.Extensions.Localization.Json
             {
                 throw new ArgumentNullException(nameof(location));
             }
+
+            baseName = TryFixInnerClassPath(baseName);
 
             var assemblyName = new AssemblyName(location);
             var assembly = Assembly.Load(assemblyName);
@@ -100,6 +104,19 @@ namespace My.Extensions.Localization.Json
             }
 
             return name;
+        }
+
+        private string TryFixInnerClassPath(string path)
+        {
+            const char innerClassSeparator = '+';
+            var fixedPath = path;
+
+            if (path.Contains(innerClassSeparator))
+            {
+                fixedPath = path.Replace(innerClassSeparator, '.');
+            }
+
+            return fixedPath;
         }
     }
 }
