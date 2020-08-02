@@ -2,6 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<VersionPrefix>2.0.0</VersionPrefix>
+    <Authors>Hisham Bin Ateya</Authors>
+	<Company />
+	<Description>Provides an localizaton implementation APIs to support JSON as underlying source for localization strings.</Description>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<PackageProjectUrl>https://github.com/hishamco/My.Extensions.Localization.Json</PackageProjectUrl>
+	<RepositoryUrl>https://github.com/hishamco/My.Extensions.Localization.Json</RepositoryUrl>
+	<RepositoryType>git</RepositoryType>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<PackageTags>ASP.NET Core, Localization, JSON</PackageTags>
+	<PackageReleaseNotes>https://github.com/hishamco/My.Extensions.Localization.Json/releases</PackageReleaseNotes>
+	<PackageId>My.Extensions.Localization.Json</PackageId>
+	<Product>JSON localizer for ASP.NET Core</Product>
+	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+	<Copyright>2019 My.Extensions.Localizations.Json</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
