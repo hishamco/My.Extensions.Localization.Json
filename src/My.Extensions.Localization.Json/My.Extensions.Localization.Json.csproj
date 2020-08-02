@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<VersionPrefix>2.0.0</VersionPrefix>
+	<VersionPrefix>3.0.0</VersionPrefix>
     <Authors>Hisham Bin Ateya</Authors>
 	<Company />
 	<Description>Provides an localizaton implementation APIs to support JSON as underlying source for localization strings.</Description>
