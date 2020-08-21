@@ -8,18 +8,26 @@ namespace LocalizationSample.Mvc.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IStringLocalizer<HomeController> _localizer;
+        private readonly IStringLocalizer _localizer;
+        private readonly IStringLocalizer<HomeController> _localizerOfT;
 
-        public HomeController(IStringLocalizer<HomeController> localizer)
+        public HomeController(IStringLocalizer localizer, IStringLocalizer<HomeController> localizerOfT)
         {
             _localizer = localizer ?? throw new ArgumentNullException(nameof(localizer));
+            _localizerOfT = localizerOfT ?? throw new ArgumentNullException(nameof(localizerOfT));
         }
 
-        public IActionResult Index() => View();
+        public IActionResult Index()
+        {
+            ViewData["Title"] = _localizer["Home Page"];
+
+            return View();
+        }
 
         public IActionResult Privacy()
         {
-            ViewData["Message"] = _localizer["Use this page to detail your site's privacy policy."];
+            ViewData["Title"] = _localizer["Privacy Policy"];
+            ViewData["Message"] = _localizerOfT["Use this page to detail your site's privacy policy."];
 
             return View();
         }

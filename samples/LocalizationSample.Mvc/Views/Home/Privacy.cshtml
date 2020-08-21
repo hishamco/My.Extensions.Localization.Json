@@ -1,9 +1,12 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using System.Globalization
+@using Microsoft.AspNetCore.Mvc.Localization
 
 @inject IViewLocalizer Localizer
 
 @{
-    ViewData["Title"] = Localizer["Privacy Policy"];
+    ViewData["Title"] = CultureInfo.CurrentUICulture.Name == "fr-FR"
+            ? Localizer["Privacy Policy"]
+            : Html.Raw(ViewData["Title"]);
 }
 <h1>@ViewData["Title"]</h1>
 

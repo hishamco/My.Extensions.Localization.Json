@@ -18,7 +18,7 @@ namespace LocalizationSample.Mvc
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseRequestLocalization("en-US", "fr-FR");
+            app.UseRequestLocalization("en-US", "ar", "fr-FR");
 
             if (env.IsDevelopment())
             {

@@ -62,8 +62,7 @@ namespace My.Extensions.Localization.Json
 
             baseName = TryFixInnerClassPath(baseName);
 
-            var assemblyName = new AssemblyName(location);
-            var assembly = Assembly.Load(assemblyName);
+            var assembly = Assembly.GetExecutingAssembly();
             var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             string resourceName = null;
 

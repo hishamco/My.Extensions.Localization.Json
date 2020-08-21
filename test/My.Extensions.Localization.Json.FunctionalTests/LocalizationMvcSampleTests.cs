@@ -17,6 +17,7 @@ namespace LocalizationSample.Mvc.FunctionalTest
         }
 
         [Theory]
+        [InlineData("ar", "سياسة الخصوصية")]
         [InlineData("en-US", "Privacy Policy")]
         [InlineData("fr-FR", "Politique de confidentialité")]
         public async Task LocalizePrivacyView(string culture, string expected)
