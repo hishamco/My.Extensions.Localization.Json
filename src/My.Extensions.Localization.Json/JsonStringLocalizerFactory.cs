@@ -117,7 +117,7 @@ namespace My.Extensions.Localization.Json
             const char innerClassSeparator = '+';
             var fixedPath = path;
 
-            if (path.Contains(innerClassSeparator))
+            if (path.Contains(innerClassSeparator.ToString()))
             {
                 fixedPath = path.Replace(innerClassSeparator, '.');
             }
