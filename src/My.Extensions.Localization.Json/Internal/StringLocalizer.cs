@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Localization;
+﻿using Microsoft.Extensions.Localization;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -9,7 +8,7 @@ namespace My.Extensions.Localization.Json.Internal
     {
         private IStringLocalizer _localizer;
 
-        public StringLocalizer(IHostingEnvironment env, IStringLocalizerFactory factory)
+        public StringLocalizer(IStringLocalizerFactory factory)
         {
             _localizer = factory.Create(string.Empty, PathHelpers.GetApplicationRoot());
         }
