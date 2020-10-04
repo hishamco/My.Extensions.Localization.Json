@@ -36,6 +36,26 @@ namespace LocalizationSample.Mvc.FunctionalTest
             Assert.Contains(expected, content);
         }
 
+
+        [Fact]
+        public async Task LocalizeRegisterViewModel()
+        {
+            // Arrange
+            var request = new HttpRequestMessage(HttpMethod.Get, "/Account/Register");
+            var culture = "fr-FR";
+            var cookieValue = $"c={culture}|uic={culture}";
+            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+
+            // Act
+            var response = await _client.SendAsync(request);
+            var content = await response.Content.ReadAsStringAsync();
+
+            // Assert
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            Assert.Contains("Mot de passe", content);
+            Assert.Contains("Confirmez le mot de passe", content);
+        }
+
         [Fact]
         public async Task LocalizeViewWithPathConventions()
         {
