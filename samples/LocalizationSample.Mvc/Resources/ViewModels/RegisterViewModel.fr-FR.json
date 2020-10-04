@@ -1,0 +1,10 @@
+﻿{
+  "Confirm password": "Confirmez le mot de passe",
+  "Email": "Email",
+  "Password": "Mot de passe",
+  "The Email field is not a valid e-mail address.": "Le champ email est pas une adresse e-mail valide.",
+  "The Email field is required.": "Le champ Email est requis.",
+  "The password and confirmation password do not match.": "Le mot de passe et la confirmation de passe ne correspondent pas.",
+  "The Password field is required.": "Le champ Mot de passe est nécessaire.",
+  "The {0} must be at least {2} characters long.": "Le {0} doit être d'au moins {2} caractères."
+}

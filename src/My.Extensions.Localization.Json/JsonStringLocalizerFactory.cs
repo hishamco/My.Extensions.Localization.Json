@@ -35,6 +35,12 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(resourceSource));
             }
 
+            // TODO: Check why an exception happen before the host build
+            if (resourceSource.Name == "Controller")
+            {
+                return CreateJsonStringLocalizer(Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(resourceSource.Assembly)), TryFixInnerClassPath("Controller"));
+            }
+
             var typeInfo = resourceSource.GetTypeInfo();
             var assembly = typeInfo.Assembly;
             var assemblyName = resourceSource.Assembly.GetName().Name;

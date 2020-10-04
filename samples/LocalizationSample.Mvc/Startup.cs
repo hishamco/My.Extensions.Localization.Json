@@ -1,3 +1,4 @@
+using LocalizationSample.Mvc.ViewModels;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -13,7 +14,11 @@ namespace LocalizationSample.Mvc
             services.AddControllersWithViews();
             services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
             services.AddMvc()
-                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix);
+                .AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+                .AddDataAnnotationsLocalization(options =>
+                {
+                    options.DataAnnotationLocalizerProvider = (type, factory) => factory.Create(typeof(RegisterViewModel));
+                });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
