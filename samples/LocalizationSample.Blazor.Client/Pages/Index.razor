@@ -1,0 +1,9 @@
+﻿@page "/"
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<Index> Localizer
+
+<h1>@Localizer["Hello"]</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
