@@ -61,12 +61,12 @@ namespace My.Extensions.Localization.Json
             }
         }
 
-        public IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) =>
+        public virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) =>
             GetAllStrings(includeParentCultures, CultureInfo.CurrentUICulture);
 
         public IStringLocalizer WithCulture(CultureInfo culture) => this;
 
-        protected IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures, CultureInfo culture)
+        protected virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures, CultureInfo culture)
         {
             if (culture == null)
             {
@@ -84,6 +84,7 @@ namespace My.Extensions.Localization.Json
             }
         }
 
+        // TODO: Remove virtual on the upcoming major release
         protected virtual string GetStringSafely(string name)
         {
             if (name == null)
