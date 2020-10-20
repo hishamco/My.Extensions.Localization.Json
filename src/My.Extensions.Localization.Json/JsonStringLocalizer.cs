@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
 using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Localization.Internal;
 using Microsoft.Extensions.Logging;
+using IResourceNamesCache = My.Extensions.Localization.Json.Caching.IResourceNamesCache;
 using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
