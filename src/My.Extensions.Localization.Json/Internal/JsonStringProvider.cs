@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Localization.Internal;
+using My.Extensions.Localization.Json.Caching;
 
 namespace My.Extensions.Localization.Json.Internal
 {
