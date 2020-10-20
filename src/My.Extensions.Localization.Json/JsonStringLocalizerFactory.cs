@@ -10,6 +10,7 @@ namespace My.Extensions.Localization.Json
 {
     public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
+        private readonly IResourceNamesCache _resourceNamesCache = new ResourceNamesCache();
         private readonly string _resourcesRelativePath;
         private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
         private readonly ILoggerFactory _loggerFactory;
@@ -83,14 +84,14 @@ namespace My.Extensions.Localization.Json
 
         protected virtual JsonStringLocalizer CreateJsonStringLocalizer(
             string resourcesPath,
-            string resourcename)
+            string resourceName)
         {
+            var resourceManager = _resourcesType == ResourcesType.TypeBased
+                ? new JsonResourceManager(resourcesPath, resourceName)
+                : new JsonResourceManager(resourcesPath);
             var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
-            return new JsonStringLocalizer(
-                resourcesPath,
-                _resourcesType == ResourcesType.TypeBased ? resourcename : null,
-                logger);
+            return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);
         }
 
         private string GetResourcePath(Assembly assembly)
