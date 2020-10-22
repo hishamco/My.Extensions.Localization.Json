@@ -118,7 +118,7 @@ namespace My.Extensions.Localization.Json.Tests
         }
 
         [Fact]
-        public async void CultureBasedResourcesUsesUsesIStringLocalizer()
+        public async void CultureBasedResourcesUsesIStringLocalizer()
         {
             var webHostBuilder = new WebHostBuilder()
                 .ConfigureServices(services =>
