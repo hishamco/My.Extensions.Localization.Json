@@ -114,7 +114,7 @@ namespace My.Extensions.Localization.Json.Internal
             }
             else
             {
-                IEnumerable<string> resourceFiles = null;
+                var resourceFiles = Enumerable.Empty<string>();
                 var rootCulture = culture.Name.Substring(0, 2);
                 if (ResourceName.Contains("."))
                 {
@@ -122,12 +122,12 @@ namespace My.Extensions.Localization.Json.Internal
 
                     if (resourceFiles.Count() == 0)
                     {
-                        resourceFiles = Directory.EnumerateFiles(ResourcesPath, $"{ResourceName.Replace('.', Path.AltDirectorySeparatorChar)}.{rootCulture}*.json");
+                        resourceFiles = GetResourceFiles(rootCulture);
                     }              
                 }
                 else
                 {
-                    resourceFiles = Directory.EnumerateFiles(ResourcesPath, $"{ResourceName}.{rootCulture}*.json");
+                    resourceFiles = GetResourceFiles(rootCulture);
                 }
 
                 foreach (var file in resourceFiles)
@@ -150,6 +150,18 @@ namespace My.Extensions.Localization.Json.Internal
                         _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
                     }                 
                 }
+            }
+
+            IEnumerable<string> GetResourceFiles(string culture)
+            {
+                var resourcePath = ResourceName.Replace('.', Path.AltDirectorySeparatorChar);
+                var resourcePathLastDirectorySeparatorIndex = resourcePath.LastIndexOf(Path.AltDirectorySeparatorChar);
+                var resourceName = resourcePath.Substring(resourcePathLastDirectorySeparatorIndex + 1);
+                var resourcesPath = Path.Combine(ResourcesPath, resourcePath.Substring(0, resourcePathLastDirectorySeparatorIndex));
+
+                return Directory.Exists(resourcesPath)
+                    ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{culture}*.json")
+                    : Enumerable.Empty<string>();
             }
         }
 
