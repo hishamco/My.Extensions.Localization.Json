@@ -4,12 +4,12 @@ using System.Reflection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using IResourceNamesCache = My.Extensions.Localization.Json.Caching.IResourceNamesCache;
-using ResourceNamesCache = My.Extensions.Localization.Json.Caching.ResourceNamesCache;
 using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
 {
+    using My.Extensions.Localization.Json.Caching;
+
     public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         private readonly IResourceNamesCache _resourceNamesCache = new ResourceNamesCache();

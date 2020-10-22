@@ -5,11 +5,12 @@ using System.Globalization;
 using System.Resources;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
-using IResourceNamesCache = My.Extensions.Localization.Json.Caching.IResourceNamesCache;
 using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
 {
+    using My.Extensions.Localization.Json.Caching;
+
     public class JsonStringLocalizer : IStringLocalizer
     {
         private readonly ConcurrentDictionary<string, object> _missingManifestCache = new ConcurrentDictionary<string, object>();
