@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Localization;
@@ -13,6 +15,7 @@ namespace My.Extensions.Localization.Json
     public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         private readonly IResourceNamesCache _resourceNamesCache = new ResourceNamesCache();
+        private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new ConcurrentDictionary<string, JsonStringLocalizer>();
         private readonly string _resourcesRelativePath;
         private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
         private readonly ILoggerFactory _loggerFactory;
@@ -38,10 +41,14 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(resourceSource));
             }
 
+            string resourcesPath = string.Empty;
+
             // TODO: Check why an exception happen before the host build
             if (resourceSource.Name == "Controller")
             {
-                return CreateJsonStringLocalizer(Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(resourceSource.Assembly)), TryFixInnerClassPath("Controller"));
+                resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(resourceSource.Assembly));
+                
+                return _localizerCache.GetOrAdd(resourceSource.Name, _ => CreateJsonStringLocalizer(resourcesPath, TryFixInnerClassPath("Controller")));
             }
 
             var typeInfo = resourceSource.GetTypeInfo();
@@ -50,11 +57,11 @@ namespace My.Extensions.Localization.Json
             var typeName = $"{assemblyName}.{typeInfo.Name}" == typeInfo.FullName
                 ? typeInfo.Name
                 : typeInfo.FullName.Substring(assemblyName.Length + 1);
-            var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
-
+            
+            resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             typeName = TryFixInnerClassPath(typeName);
 
-            return CreateJsonStringLocalizer(resourcesPath, typeName);
+            return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(resourcesPath, typeName));
         }
 
         public IStringLocalizer Create(string baseName, string location)
@@ -69,19 +76,21 @@ namespace My.Extensions.Localization.Json
                 throw new ArgumentNullException(nameof(location));
             }
 
-            baseName = TryFixInnerClassPath(baseName);
-
-            var assemblyName = new AssemblyName(location);
-            var assembly = Assembly.Load(assemblyName);
-            var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
-            string resourceName = null;
-
-            if (_resourcesType == ResourcesType.TypeBased)
+            return _localizerCache.GetOrAdd($"baseName={baseName},location={location}", _ =>
             {
-                resourceName = TrimPrefix(baseName, location + ".");
-            }
+                var assemblyName = new AssemblyName(location);
+                var assembly = Assembly.Load(assemblyName);
+                var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
+                string resourceName = null;
 
-            return CreateJsonStringLocalizer(resourcesPath, resourceName);
+                if (_resourcesType == ResourcesType.TypeBased)
+                {
+                    baseName = TryFixInnerClassPath(baseName);
+                    resourceName = TrimPrefix(baseName, location + ".");
+                }
+
+                return CreateJsonStringLocalizer(resourcesPath, resourceName);
+            });
         }
 
         protected virtual JsonStringLocalizer CreateJsonStringLocalizer(
