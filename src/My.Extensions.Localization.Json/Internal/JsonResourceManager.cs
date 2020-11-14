@@ -157,7 +157,15 @@ namespace My.Extensions.Localization.Json.Internal
                 var resourcePath = ResourceName.Replace('.', Path.AltDirectorySeparatorChar);
                 var resourcePathLastDirectorySeparatorIndex = resourcePath.LastIndexOf(Path.AltDirectorySeparatorChar);
                 var resourceName = resourcePath.Substring(resourcePathLastDirectorySeparatorIndex + 1);
-                var resourcesPath = Path.Combine(ResourcesPath, resourcePath.Substring(0, resourcePathLastDirectorySeparatorIndex));
+                string resourcesPath = null;
+                if (resourcePathLastDirectorySeparatorIndex == -1)
+                {
+                    resourcesPath = ResourcesPath;
+                }
+                else
+                {
+                    resourcesPath = Path.Combine(ResourcesPath, resourcePath.Substring(0, resourcePathLastDirectorySeparatorIndex));
+                }
 
                 return Directory.Exists(resourcesPath)
                     ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{culture}*.json")
@@ -167,11 +175,17 @@ namespace My.Extensions.Localization.Json.Internal
 
         private static IDictionary<string, string> LoadJsonResources(string filePath)
         {
-            var builder = new ConfigurationBuilder()
-                .AddJsonFile(filePath, optional: true, reloadOnChange: true);
-            var config = builder.Build();
+            if (File.Exists(filePath))
+            {
+                var builder = new ConfigurationBuilder()
+                    .AddJsonFile(filePath, optional: true, reloadOnChange: true);
 
-            return new Dictionary<string, string>(config.AsEnumerable());
+                return new Dictionary<string, string>(builder.Build().AsEnumerable());
+            }
+            else
+            {
+                return new Dictionary<string, string>();
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Localization;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
+using Microsoft.Extensions.Localization;
 
 namespace My.Extensions.Localization.Json.Internal
 {
@@ -10,7 +11,9 @@ namespace My.Extensions.Localization.Json.Internal
 
         public StringLocalizer(IStringLocalizerFactory factory)
         {
-            _localizer = factory.Create(string.Empty, PathHelpers.GetApplicationRoot());
+            var type = typeof(StringLocalizer);
+            var assemblyName = new AssemblyName(type.GetTypeInfo().Assembly.FullName);
+            _localizer = factory.Create(string.Empty, assemblyName.FullName);
         }
 
         public LocalizedString this[string name] => _localizer[name];

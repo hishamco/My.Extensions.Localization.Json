@@ -82,6 +82,12 @@ namespace My.Extensions.Localization.Json
                 var assembly = Assembly.Load(assemblyName);
                 var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
                 string resourceName = null;
+                if (baseName == string.Empty)
+                {
+                    resourceName = baseName;
+
+                    return CreateJsonStringLocalizer(resourcesPath, resourceName);
+                }
 
                 if (_resourcesType == ResourcesType.TypeBased)
                 {
