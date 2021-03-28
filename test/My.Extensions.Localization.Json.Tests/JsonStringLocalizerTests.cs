@@ -126,7 +126,6 @@ namespace My.Extensions.Localization.Json.Tests
                     services.AddJsonLocalization(options =>
                     {
                         options.ResourcesPath = "Resources";
-                        options.ResourcesType = ResourcesType.CultureBased;
                     });
                 })
                 .Configure(app =>

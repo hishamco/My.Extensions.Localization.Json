@@ -1,15 +1,16 @@
-﻿using System;
+﻿using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using My.Extensions.Localization.Json.Internal;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Resources;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
-using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json
 {
     using My.Extensions.Localization.Json.Caching;
+    using System.Reflection;
 
     public class JsonStringLocalizer : IStringLocalizer
     {
@@ -17,41 +18,83 @@ namespace My.Extensions.Localization.Json
         private readonly IResourceNamesCache _resourceNamesCache;
         private readonly JsonResourceManager _jsonResourceManager;
         private readonly IResourceStringProvider _resourceStringProvider;
+        private readonly string _resourceBaseName;
         private readonly ILogger _logger;
 
         private string _searchedLocation;
 
         public JsonStringLocalizer(
             JsonResourceManager jsonResourceManager,
+            Assembly resourceAssembly,
+            string baseName,
             IResourceNamesCache resourceNamesCache,
             ILogger logger)
-            : this(jsonResourceManager,
-                new JsonStringProvider(resourceNamesCache, jsonResourceManager),
+            : this(
+                  jsonResourceManager,
+                new AssemblyWrapper(resourceAssembly),
+                baseName,
                 resourceNamesCache,
                 logger)
         {
 
         }
 
-        public JsonStringLocalizer(
+        internal JsonStringLocalizer(
+             JsonResourceManager jsonResourceManager,
+             AssemblyWrapper resourceAssemblyWrapper,
+             string baseName,
+             IResourceNamesCache resourceNamesCache,
+             ILogger logger)
+             : this(
+                   jsonResourceManager,
+                   new JsonStringProvider(
+                       resourceNamesCache,
+                       jsonResourceManager,
+                       resourceAssemblyWrapper.Assembly,
+                       baseName),
+                   baseName,
+                   resourceNamesCache,
+                   logger)
+        {
+        }
+
+        internal JsonStringLocalizer(
             JsonResourceManager jsonResourceManager,
             IResourceStringProvider resourceStringProvider,
+            string baseName,
             IResourceNamesCache resourceNamesCache,
             ILogger logger)
         {
-            _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
-            _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
-            _resourceNamesCache = resourceNamesCache ?? throw new ArgumentNullException(nameof(resourceNamesCache));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
+            if (jsonResourceManager == null)
+            {
+                throw new ArgumentNullException(nameof(jsonResourceManager));
+            }
 
-        [Obsolete("This constructor is deprecated and will be removed in the major release.", true)]
-        public JsonStringLocalizer(
-            string resourcesPath,
-            string resourceName,
-            ILogger logger)
-        {
+            if (resourceStringProvider == null)
+            {
+                throw new ArgumentNullException(nameof(resourceStringProvider));
+            }
 
+            if (baseName == null)
+            {
+                throw new ArgumentNullException(nameof(baseName));
+            }
+
+            if (resourceNamesCache == null)
+            {
+                throw new ArgumentNullException(nameof(resourceNamesCache));
+            }
+
+            if (logger == null)
+            {
+                throw new ArgumentNullException(nameof(logger));
+            }
+
+            _resourceStringProvider = resourceStringProvider;
+            _jsonResourceManager = jsonResourceManager;
+            _resourceBaseName = baseName;
+            _resourceNamesCache = resourceNamesCache;
+            _logger = logger;
         }
 
         public LocalizedString this[string name]
@@ -137,7 +180,7 @@ namespace My.Extensions.Localization.Json
             catch (MissingManifestResourceException)
             {
                 _missingManifestCache.TryAdd(cacheKey, null);
-                
+
                 return null;
             }
         }

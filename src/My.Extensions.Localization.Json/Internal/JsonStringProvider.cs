@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using System.Resources;
 using My.Extensions.Localization.Json.Caching;
 
@@ -9,18 +10,26 @@ namespace My.Extensions.Localization.Json.Internal
     {
         private readonly IResourceNamesCache _resourceNamesCache;
         private readonly JsonResourceManager _jsonResourceManager;
+        private readonly Assembly _assembly;
+        private readonly string _resourceBaseName;
 
-        public JsonStringProvider(IResourceNamesCache resourceCache, JsonResourceManager jsonResourceManager)
+        public JsonStringProvider(
+            IResourceNamesCache resourceCache,
+            JsonResourceManager jsonResourceManager,
+            Assembly assembly,
+            string baseName)
         {
             _jsonResourceManager = jsonResourceManager;
             _resourceNamesCache = resourceCache;
+            _assembly = assembly;
+            _resourceBaseName = baseName;
         }
 
         private string GetResourceCacheKey(CultureInfo culture)
         {
             var resourceName = _jsonResourceManager.ResourceName;
 
-            return $"Culture={culture.Name};resourceName={resourceName}";
+            return $"Culture={culture.Name};resourceName={resourceName};Assembly={_assembly.FullName}";
         }
 
         public IList<string> GetAllResourceStrings(CultureInfo culture, bool throwOnMissing)

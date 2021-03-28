@@ -1,16 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using LocalizationSample.Blazor.Server.Data;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LocalizationSample.Blazor.Server.Data;
 using System.Globalization;
+using System.Reflection;
 
 namespace LocalizationSample.Blazor.Server
 {
@@ -28,7 +23,11 @@ namespace LocalizationSample.Blazor.Server
         public void ConfigureServices(IServiceCollection services)
         {
             CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("fr-FR");
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options =>
+            {
+                options.ResourcesPath = "Resources";
+                options.ResourceAssembly = Assembly.GetExecutingAssembly();
+            });
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();

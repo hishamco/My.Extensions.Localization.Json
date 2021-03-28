@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +15,11 @@ namespace LocalizationSample
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options =>
+            {
+                options.ResourcesPath = "Resources";
+                options.ResourceAssembly = Assembly.GetExecutingAssembly();
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer localizer1, IStringLocalizer<Startup> localizer2)
@@ -40,8 +45,8 @@ namespace LocalizationSample
 
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
-                await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
+                await context.Response.WriteAsync($"{localizer1["Hello"]}");
+                await context.Response.WriteAsync($"{localizer2["Hello"]}");
             });
         }
 

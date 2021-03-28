@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 
 namespace My.Extensions.Localization.Json.Internal
@@ -11,10 +12,12 @@ namespace My.Extensions.Localization.Json.Internal
     {
         private ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
 
-        public JsonResourceManager(string resourcesPath, string resourceName = null)
+        private readonly Assembly _resourcesAssembly;
+
+        public JsonResourceManager(string baseName, Assembly assembly)
         {
-            ResourcesPath = resourcesPath;
-            ResourceName = resourceName;
+            this._resourcesAssembly = assembly;
+            this.ResourceName = baseName;
         }
 
         public string ResourceName { get; }
@@ -105,87 +108,92 @@ namespace My.Extensions.Localization.Json.Internal
 
         private void TryLoadResourceSet(CultureInfo culture)
         {
-            if (string.IsNullOrEmpty(ResourceName))
-            {
-                var file = Path.Combine(ResourcesPath, $"{culture.Name}.json");
-                var resources = LoadJsonResources(file);
+            var resourceFiles = new List<string>();
 
-                _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
-            }
-            else
+            var rootCulture = culture.Name.Substring(0, 2);
+
+            if (ResourceName.Contains("."))
             {
-                var resourceFiles = Enumerable.Empty<string>();
-                var rootCulture = culture.Name.Substring(0, 2);
-                if (ResourceName.Contains("."))
+                var availableResources = _resourcesAssembly?.GetManifestResourceNames();
+
+                if (availableResources != null && availableResources.Length > 0)
                 {
-                    resourceFiles = Directory.EnumerateFiles(ResourcesPath, $"{ResourceName}.{rootCulture}*.json");
-
-                    if (resourceFiles.Count() == 0)
+                    foreach (var resource in availableResources)
                     {
-                        resourceFiles = GetResourceFiles(rootCulture);
-                    }              
+                        if (resource.Contains($"{ResourceName}.{rootCulture}"))
+                        {
+                            resourceFiles.Add(resource);
+                        }
+                    }
                 }
-                else
+
+                if (resourceFiles.Count() == 0)
                 {
                     resourceFiles = GetResourceFiles(rootCulture);
                 }
-
-                foreach (var file in resourceFiles)
-                {
-                    var resources = LoadJsonResources(file);
-                    var fileName = Path.GetFileNameWithoutExtension(file);
-                    var cultureName = fileName.Substring(fileName.LastIndexOf(".") + 1);
-                    
-                    culture = CultureInfo.GetCultureInfo(cultureName);
-                    
-                    if (_resourcesCache.ContainsKey(culture.Name))
-                    {
-                        foreach (var resource in resources)
-                        {
-                            _resourcesCache[culture.Name].TryAdd(resource.Key, resource.Value);
-                        }
-                    }
-                    else
-                    {
-                        _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
-                    }                 
-                }
-            }
-
-            IEnumerable<string> GetResourceFiles(string culture)
-            {
-                var resourcePath = ResourceName.Replace('.', Path.AltDirectorySeparatorChar);
-                var resourcePathLastDirectorySeparatorIndex = resourcePath.LastIndexOf(Path.AltDirectorySeparatorChar);
-                var resourceName = resourcePath.Substring(resourcePathLastDirectorySeparatorIndex + 1);
-                string resourcesPath = null;
-                if (resourcePathLastDirectorySeparatorIndex == -1)
-                {
-                    resourcesPath = ResourcesPath;
-                }
-                else
-                {
-                    resourcesPath = Path.Combine(ResourcesPath, resourcePath.Substring(0, resourcePathLastDirectorySeparatorIndex));
-                }
-
-                return Directory.Exists(resourcesPath)
-                    ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{culture}*.json")
-                    : Enumerable.Empty<string>();
-            }
-        }
-
-        private static IDictionary<string, string> LoadJsonResources(string filePath)
-        {
-            if (File.Exists(filePath))
-            {
-                var builder = new ConfigurationBuilder()
-                    .AddJsonFile(filePath, optional: true, reloadOnChange: true);
-
-                return new Dictionary<string, string>(builder.Build().AsEnumerable());
             }
             else
             {
-                return new Dictionary<string, string>();
+                resourceFiles = GetResourceFiles(rootCulture);
             }
+
+            foreach (var file in resourceFiles)
+            {
+                var resources = LoadJsonResources(file);
+
+                var fileName = Path.GetFileNameWithoutExtension(file);
+
+                var cultureName = fileName.Substring(fileName.LastIndexOf(".") + 1);
+
+                culture = CultureInfo.GetCultureInfo(cultureName);
+
+                if (_resourcesCache.ContainsKey(culture.Name))
+                {
+                    foreach (var resource in resources)
+                    {
+                        _resourcesCache[culture.Name].TryAdd(resource.Key, resource.Value);
+                    }
+                }
+                else
+                {
+                    _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
+                }
+            }
+
+            List<string> GetResourceFiles(string culture)
+            {
+                var resoourceNames = _resourcesAssembly?.GetManifestResourceNames();
+
+                var resources = new List<string>();
+
+                if (resoourceNames != null && resoourceNames.Length > 0)
+                {
+                    foreach (var resource in resoourceNames)
+                    {
+                        if (resource.Contains($"{ResourceName}.{rootCulture}"))
+                        {
+                            resources.Add(resource);
+                        }
+                    }
+                }
+
+                return resources;
+            }
+        }
+
+        private IDictionary<string, string> LoadJsonResources(string fileName)
+        {
+            using var fileStream = _resourcesAssembly.GetManifestResourceStream(fileName);
+
+            if (fileStream == null) return null;
+
+            using var streamReader = new StreamReader(fileStream);
+
+            var content = streamReader.ReadToEnd();
+
+            var keyValues = System.Text.Json.JsonSerializer.Deserialize<IDictionary<string, string>>(content);
+
+            return keyValues ?? new Dictionary<string, string>();
         }
     }
 }

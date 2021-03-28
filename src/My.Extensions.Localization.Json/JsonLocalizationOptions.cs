@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Localization;
+using System.Reflection;
 
 namespace My.Extensions.Localization.Json
 {
     public class JsonLocalizationOptions : LocalizationOptions
     {
-        public ResourcesType ResourcesType { get; set; } = ResourcesType.TypeBased;
+        public Assembly ResourceAssembly { get; set; }
     }
 }

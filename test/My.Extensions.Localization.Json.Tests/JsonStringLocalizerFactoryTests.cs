@@ -98,8 +98,7 @@ namespace My.Extensions.Localization.Json.Tests
         private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
             => _localizationOptions.Setup(o => o.Value)
                 .Returns(() => new JsonLocalizationOptions {
-                    ResourcesPath = resourcesPath,
-                    ResourcesType = resourcesType
+                    ResourcesPath = resourcesPath
                 });
 
         public class InnerClassStartup
