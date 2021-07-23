@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -41,6 +42,24 @@ namespace My.Extensions.Localization.Json.Tests
             // Assert
             Assert.NotNull(localizer);
             Assert.Equal("Bonjour", localizer["Hello"]);
+        }
+
+        [Theory]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(Test))]
+        public void CreateLocalizerWithTypeSucceeds(Type type)
+        {
+            SetupLocalizationOptions("Resources");
+            LocalizationHelper.SetCurrentCulture("fr-FR");
+
+            // Arrange
+            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+            // Act
+            localizerFactory.Create(type);
+
+            // Assert
+            // Should not throw an exception
         }
 
         [Theory]

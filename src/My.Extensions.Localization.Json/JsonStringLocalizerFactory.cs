@@ -56,8 +56,8 @@ namespace My.Extensions.Localization.Json
             var assemblyName = resourceSource.Assembly.GetName().Name;
             var typeName = $"{assemblyName}.{typeInfo.Name}" == typeInfo.FullName
                 ? typeInfo.Name
-                : typeInfo.FullName.Substring(assemblyName.Length + 1);
-            
+                : TrimPrefix(typeInfo.FullName, assemblyName + ".");
+
             resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
             typeName = TryFixInnerClassPath(typeName);
 
