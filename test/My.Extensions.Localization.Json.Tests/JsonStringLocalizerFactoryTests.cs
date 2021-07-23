@@ -44,8 +44,10 @@ namespace My.Extensions.Localization.Json.Tests
             Assert.Equal("Bonjour", localizer["Hello"]);
         }
 
-        [Fact]
-        public void JsonStringLocalizerFactory_CreateLocalizerWithSystemType()
+        [Theory]
+        [InlineData(typeof(string))]
+        [InlineData(typeof(Test))]
+        public void CreateLocalizerWithTypeSucceeds(Type type)
         {
             SetupLocalizationOptions("Resources");
             LocalizationHelper.SetCurrentCulture("fr-FR");
@@ -54,7 +56,7 @@ namespace My.Extensions.Localization.Json.Tests
             var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
 
             // Act
-            var localizer = localizerFactory.Create(typeof(string));
+            localizerFactory.Create(type);
 
             // Assert
             // Should not throw an exception
