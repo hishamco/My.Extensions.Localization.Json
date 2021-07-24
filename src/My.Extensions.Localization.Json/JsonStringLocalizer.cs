@@ -45,15 +45,6 @@ namespace My.Extensions.Localization.Json
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [Obsolete("This constructor is deprecated and will be removed in the major release.", true)]
-        public JsonStringLocalizer(
-            string resourcesPath,
-            string resourceName,
-            ILogger logger)
-        {
-
-        }
-
         public LocalizedString this[string name]
         {
             get
@@ -107,9 +98,6 @@ namespace My.Extensions.Localization.Json
                 yield return new LocalizedString(name, value ?? name, resourceNotFound: value == null, searchedLocation: _searchedLocation);
             }
         }
-
-        [Obsolete("This method is deprecated and will be removed in the major release.")]
-        protected virtual string GetStringSafely(string name) => GetStringSafely(name, CultureInfo.CurrentUICulture);
 
         protected string GetStringSafely(string name, CultureInfo culture)
         {
