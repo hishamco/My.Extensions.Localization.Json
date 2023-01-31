@@ -3,8 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<VersionPrefix>3.0.1</VersionPrefix>
-	<Version>1.0.0</Version>
+	<Version>3.0.1</Version>
     <Authors>Hisham Bin Ateya</Authors>
 	<Company />
 	<Description>Provides an localizaton implementation APIs to support JSON as underlying source for localization strings.</Description>
