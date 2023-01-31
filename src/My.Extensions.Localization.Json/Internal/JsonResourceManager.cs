@@ -178,7 +178,7 @@ namespace My.Extensions.Localization.Json.Internal
             if (File.Exists(filePath))
             {
                 var builder = new ConfigurationBuilder()
-                    .AddJsonFile(filePath, optional: true, reloadOnChange: true);
+                    .AddJsonFile(filePath, optional: true, reloadOnChange: false);
 
                 return new Dictionary<string, string>(builder.Build().AsEnumerable());
             }
