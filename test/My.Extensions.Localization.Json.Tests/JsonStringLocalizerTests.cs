@@ -17,7 +17,6 @@ namespace My.Extensions.Localization.Json.Tests
     public class JsonStringLocalizerTests
     {
         private readonly IStringLocalizer _localizer;
-        private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions;
 
         public JsonStringLocalizerTests()
         {
