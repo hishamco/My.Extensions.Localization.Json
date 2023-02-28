@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using Microsoft.Extensions.Configuration;
+using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal
 {
@@ -175,17 +175,17 @@ namespace My.Extensions.Localization.Json.Internal
 
         private static IDictionary<string, string> LoadJsonResources(string filePath)
         {
+            var resources = new Dictionary<string, string>();
             if (File.Exists(filePath))
             {
-                var builder = new ConfigurationBuilder()
-                    .AddJsonFile(filePath, optional: true, reloadOnChange: false);
+                var reader = new StreamReader(filePath);
 
-                return new Dictionary<string, string>(builder.Build().AsEnumerable());
+                var document = JsonDocument.Parse(reader.BaseStream);
+
+                resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
             }
-            else
-            {
-                return new Dictionary<string, string>();
-            }
+
+            return resources;
         }
     }
 }
