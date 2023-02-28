@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33403.182
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{E0CDCF6A-1738-46CC-A28A-0DFBC02B40DE}"
 EndProject
@@ -21,9 +21,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Mvc", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "My.Extensions.Localization.Json.FunctionalTests", "test\My.Extensions.Localization.Json.FunctionalTests\My.Extensions.Localization.Json.FunctionalTests.csproj", "{DC858972-8F2F-4E79-A455-154D58EC47AE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationSample.Blazor.Server", "samples\LocalizationSample.Blazor.Server\LocalizationSample.Blazor.Server.csproj", "{ABAE045F-7B99-4C72-83F7-8F37209B5D8C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.Server", "samples\LocalizationSample.Blazor.Server\LocalizationSample.Blazor.Server.csproj", "{ABAE045F-7B99-4C72-83F7-8F37209B5D8C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.Client", "samples\LocalizationSample.Blazor.Client\LocalizationSample.Blazor.Client.csproj", "{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My.Extensions.Localization.Json.Benchmarks", "test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj", "{37DA3363-09EC-4686-89A9-2D12B2472C52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -76,6 +82,7 @@ Global
 		{DC858972-8F2F-4E79-A455-154D58EC47AE} = {9FF90A72-EC14-4C15-921F-DB7AE3D1D34C}
 		{ABAE045F-7B99-4C72-83F7-8F37209B5D8C} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
 		{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
+		{37DA3363-09EC-4686-89A9-2D12B2472C52} = {9FF90A72-EC14-4C15-921F-DB7AE3D1D34C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D173946A-BDF7-44A8-9740-2156FA7EC074}
