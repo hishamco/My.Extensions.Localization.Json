@@ -1,0 +1,6 @@
+﻿// This is a Chinese json file
+{
+  "Hello": "你好",
+  // The tail has a comma
+  "Hello, {0}": "你好，{0}",
+}
