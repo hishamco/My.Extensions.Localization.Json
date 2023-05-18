@@ -86,6 +86,23 @@ namespace My.Extensions.Localization.Json.Tests
             Assert.Equal(expected, translation);
         }
 
+
+        [Theory]
+        [InlineData("zh-CN", "Hello", "你好")]
+        [InlineData("zh-CN", "Hello, {0}", "你好，{0}")]
+        public void GetTranslationWithCommentsOrCommas(string culture, string name, string expected)
+        {
+            // Arrange
+            string translation = null;
+
+            // Act
+            LocalizationHelper.SetCurrentCulture(culture);
+            translation = _localizer[name];
+
+            // Assert
+            Assert.Equal(expected, translation);
+        }
+
         [Fact]
         public void GetTranslation_StronglyTypeResourceName()
         {

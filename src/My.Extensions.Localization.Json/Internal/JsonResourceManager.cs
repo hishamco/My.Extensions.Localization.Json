@@ -9,6 +9,12 @@ namespace My.Extensions.Localization.Json.Internal
 {
     public class JsonResourceManager
     {
+        private static readonly JsonDocumentOptions _jsonDocumentOptions = new JsonDocumentOptions
+        {
+            CommentHandling = JsonCommentHandling.Skip,
+            AllowTrailingCommas = true,
+        };
+
         private ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new ConcurrentDictionary<string, ConcurrentDictionary<string, string>>();
 
         public JsonResourceManager(string resourcesPath, string resourceName = null)
@@ -178,15 +184,9 @@ namespace My.Extensions.Localization.Json.Internal
             var resources = new Dictionary<string, string>();
             if (File.Exists(filePath))
             {
-                var documentOptions = new JsonDocumentOptions
-                {
-                    CommentHandling = JsonCommentHandling.Skip,
-                    AllowTrailingCommas = true,
-                };
-
                 using var reader = new StreamReader(filePath);
 
-                using var document = JsonDocument.Parse(reader.BaseStream, documentOptions);
+                using var document = JsonDocument.Parse(reader.BaseStream, _jsonDocumentOptions);
 
                 resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
             }
