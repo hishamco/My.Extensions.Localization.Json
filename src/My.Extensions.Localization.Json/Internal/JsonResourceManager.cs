@@ -27,7 +27,7 @@ namespace My.Extensions.Localization.Json.Internal
         {
             TryLoadResourceSet(culture);
 
-            if(!_resourcesCache.ContainsKey(culture.Name))
+            if (!_resourcesCache.ContainsKey(culture.Name))
             {
                 return null;
             }
@@ -37,7 +37,7 @@ namespace My.Extensions.Localization.Json.Internal
                 var allResources = new ConcurrentDictionary<string, string>();
                 do
                 {
-                    if(_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
+                    if (_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
                     {
                         foreach (var entry in resources)
                         {
@@ -123,7 +123,7 @@ namespace My.Extensions.Localization.Json.Internal
                     if (resourceFiles.Count() == 0)
                     {
                         resourceFiles = GetResourceFiles(rootCulture);
-                    }              
+                    }
                 }
                 else
                 {
@@ -135,9 +135,9 @@ namespace My.Extensions.Localization.Json.Internal
                     var resources = LoadJsonResources(file);
                     var fileName = Path.GetFileNameWithoutExtension(file);
                     var cultureName = fileName.Substring(fileName.LastIndexOf(".") + 1);
-                    
+
                     culture = CultureInfo.GetCultureInfo(cultureName);
-                    
+
                     if (_resourcesCache.ContainsKey(culture.Name))
                     {
                         foreach (var resource in resources)
@@ -148,7 +148,7 @@ namespace My.Extensions.Localization.Json.Internal
                     else
                     {
                         _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
-                    }                 
+                    }
                 }
             }
 
@@ -178,9 +178,15 @@ namespace My.Extensions.Localization.Json.Internal
             var resources = new Dictionary<string, string>();
             if (File.Exists(filePath))
             {
-                var reader = new StreamReader(filePath);
+                var documentOptions = new JsonDocumentOptions
+                {
+                    CommentHandling = JsonCommentHandling.Skip,
+                    AllowTrailingCommas = true,
+                };
 
-                var document = JsonDocument.Parse(reader.BaseStream);
+                using var reader = new StreamReader(filePath);
+
+                using var document = JsonDocument.Parse(reader.BaseStream, documentOptions);
 
                 resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
             }
