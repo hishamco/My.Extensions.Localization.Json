@@ -25,7 +25,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.Client", "samples\LocalizationSample.Blazor.Client\LocalizationSample.Blazor.Client.csproj", "{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My.Extensions.Localization.Json.Benchmarks", "test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj", "{37DA3363-09EC-4686-89A9-2D12B2472C52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "My.Extensions.Localization.Json.Benchmarks", "test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj", "{37DA3363-09EC-4686-89A9-2D12B2472C52}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationSample.Blazor.WebApp", "LocalizationSample.Blazor.WebApp\LocalizationSample.Blazor.WebApp\LocalizationSample.Blazor.WebApp.csproj", "{DE405571-A998-43A2-8520-6A59B47770B7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalizationSample.Blazor.WebApp.Client", "LocalizationSample.Blazor.WebApp\LocalizationSample.Blazor.WebApp.Client\LocalizationSample.Blazor.WebApp.Client.csproj", "{327B6BC2-9907-4CB5-AFB3-EA33C19B6563}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +73,14 @@ Global
 		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{37DA3363-09EC-4686-89A9-2D12B2472C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE405571-A998-43A2-8520-6A59B47770B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE405571-A998-43A2-8520-6A59B47770B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE405571-A998-43A2-8520-6A59B47770B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE405571-A998-43A2-8520-6A59B47770B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{327B6BC2-9907-4CB5-AFB3-EA33C19B6563}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{327B6BC2-9907-4CB5-AFB3-EA33C19B6563}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{327B6BC2-9907-4CB5-AFB3-EA33C19B6563}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{327B6BC2-9907-4CB5-AFB3-EA33C19B6563}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,6 +95,8 @@ Global
 		{ABAE045F-7B99-4C72-83F7-8F37209B5D8C} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
 		{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
 		{37DA3363-09EC-4686-89A9-2D12B2472C52} = {9FF90A72-EC14-4C15-921F-DB7AE3D1D34C}
+		{DE405571-A998-43A2-8520-6A59B47770B7} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
+		{327B6BC2-9907-4CB5-AFB3-EA33C19B6563} = {5D3D85C6-7B3B-4D7E-925F-33B19AE15D76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D173946A-BDF7-44A8-9740-2156FA7EC074}
