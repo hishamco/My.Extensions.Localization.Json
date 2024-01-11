@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal
@@ -182,6 +183,10 @@ namespace My.Extensions.Localization.Json.Internal
         private static IDictionary<string, string> LoadJsonResources(string filePath)
         {
             var resources = new Dictionary<string, string>();
+            var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+            var directory = !string.IsNullOrEmpty(assemblyLocation) ?  Path.GetDirectoryName(assemblyLocation) : "";
+            filePath = Path.Combine(directory, filePath);
+
             if (File.Exists(filePath))
             {
                 using var reader = new StreamReader(filePath);
@@ -189,6 +194,22 @@ namespace My.Extensions.Localization.Json.Internal
                 using var document = JsonDocument.Parse(reader.BaseStream, _jsonDocumentOptions);
 
                 resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
+            } else
+            {
+                var resources_embedded = Assembly.GetEntryAssembly().GetManifestResourceNames();
+                foreach (var resourceName in resources_embedded)
+                {
+                    if (resourceName.Contains(filePath.Replace("/", "."))) {
+                        using (Stream stream = Assembly.GetEntryAssembly().GetManifestResourceStream(resourceName))
+                        {
+                            using (StreamReader reader =  new StreamReader(stream))
+                            {
+                                using var document = JsonDocument.Parse(reader.BaseStream, _jsonDocumentOptions);
+                                resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
+                            }
+                        }
+                    }
+                }
             }
 
             return resources;
