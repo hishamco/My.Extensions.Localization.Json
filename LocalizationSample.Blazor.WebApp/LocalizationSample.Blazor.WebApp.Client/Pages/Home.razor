@@ -1,0 +1,12 @@
+﻿@page "/"
+@inject IStringLocalizer Loc
+@rendermode InteractiveAuto
+
+<PageTitle>Home</PageTitle>
+
+<h1>Home @(OperatingSystem.IsBrowser() ? "Wasm" : "Server")</h1>
+
+
+<h1>@Loc["Hello"]</h1>
+
+Welcome to your new app.

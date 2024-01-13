@@ -46,7 +46,7 @@ namespace My.Extensions.Localization.Json
             // TODO: Check why an exception happen before the host build
             if (resourceSource.Name == "Controller")
             {
-                resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(resourceSource.Assembly));
+                resourcesPath = GetResourcePath(resourceSource.Assembly);
                 
                 return _localizerCache.GetOrAdd(resourceSource.Name, _ => CreateJsonStringLocalizer(resourcesPath, TryFixInnerClassPath("Controller")));
             }
@@ -58,7 +58,7 @@ namespace My.Extensions.Localization.Json
                 ? typeInfo.Name
                 : TrimPrefix(typeInfo.FullName, assemblyName + ".");
 
-            resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
+            resourcesPath = GetResourcePath(assembly);
             typeName = TryFixInnerClassPath(typeName);
 
             return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(resourcesPath, typeName));
@@ -80,7 +80,7 @@ namespace My.Extensions.Localization.Json
             {
                 var assemblyName = new AssemblyName(location);
                 var assembly = Assembly.Load(assemblyName);
-                var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
+                var resourcesPath = GetResourcePath(assembly);
                 string resourceName = null;
                 if (baseName == string.Empty)
                 {
