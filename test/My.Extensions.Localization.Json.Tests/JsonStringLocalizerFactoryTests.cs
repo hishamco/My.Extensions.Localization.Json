@@ -14,143 +14,140 @@ using Moq;
 using My.Extensions.Localization.Json.Tests.Common;
 using Xunit;
 
-namespace My.Extensions.Localization.Json.Tests
+namespace My.Extensions.Localization.Json.Tests;
+
+public class JsonStringLocalizerFactoryTests
 {
-    public class JsonStringLocalizerFactoryTests
+    private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions;
+    private readonly ILoggerFactory _loggerFactory;
+
+    public JsonStringLocalizerFactoryTests()
     {
-        private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions;
-        private readonly ILoggerFactory _loggerFactory;
+        _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
+        _loggerFactory = NullLoggerFactory.Instance;
+    }
 
-        public JsonStringLocalizerFactoryTests()
-        {
-            _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
-            _loggerFactory = NullLoggerFactory.Instance;
-        }
+    [Fact]
+    public void JsonStringLocalizerFactory_CreateLocalizerWithType()
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        [Fact]
-        public void JsonStringLocalizerFactory_CreateLocalizerWithType()
-        {
-            SetupLocalizationOptions("Resources");
-            LocalizationHelper.SetCurrentCulture("fr-FR");
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
 
-            // Arrange
-            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        // Act
+        var localizer = localizerFactory.Create(typeof(Test));
 
-            // Act
-            var localizer = localizerFactory.Create(typeof(Test));
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour", localizer["Hello"]);
+    }
 
-            // Assert
-            Assert.NotNull(localizer);
-            Assert.Equal("Bonjour", localizer["Hello"]);
-        }
+    [Theory]
+    [InlineData(typeof(string))]
+    [InlineData(typeof(Test))]
+    public void CreateLocalizerWithTypeSucceeds(Type type)
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        [Theory]
-        [InlineData(typeof(string))]
-        [InlineData(typeof(Test))]
-        public void CreateLocalizerWithTypeSucceeds(Type type)
-        {
-            SetupLocalizationOptions("Resources");
-            LocalizationHelper.SetCurrentCulture("fr-FR");
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
 
-            // Arrange
-            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        // Act
+        localizerFactory.Create(type);
 
-            // Act
-            localizerFactory.Create(type);
+        // Assert
+        // Should not throw an exception
+    }
 
-            // Assert
-            // Should not throw an exception
-        }
+    [Theory]
+    [InlineData(ResourcesType.TypeBased)]
+    [InlineData(ResourcesType.CultureBased)]
+    public void CreateLocalizerWithBasenameAndLocation(ResourcesType resourcesType)
+    {
+        SetupLocalizationOptions("Resources", resourcesType);
+        LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        [Theory]
-        [InlineData(ResourcesType.TypeBased)]
-        [InlineData(ResourcesType.CultureBased)]
-        public void CreateLocalizerWithBasenameAndLocation(ResourcesType resourcesType)
-        {
-            SetupLocalizationOptions("Resources", resourcesType);
-            LocalizationHelper.SetCurrentCulture("fr-FR");
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
 
-            // Arrange
-            var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
-            var location = "My.Extensions.Localization.Json.Tests";
-            var basename = $"{location}.Common.{nameof(Test)}";
+        // Act
+        var localizer = localizerFactory.Create(basename, location);
 
-            // Act
-            var localizer = localizerFactory.Create(basename, location);
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour", localizer["Hello"]);
+    }
 
-            // Assert
-            Assert.NotNull(localizer);
-            Assert.Equal("Bonjour", localizer["Hello"]);
-        }
-
-        [Fact]
-        public async Task LocalizerReturnsTranslationFromInnerClass()
-        {
-            var webHostBuilder = new WebHostBuilder()
-                .ConfigureServices(services =>
-                {
-                    services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
-                })
-                .Configure(app =>
-                {
-                    app.UseRequestLocalization("en", "ar");
-
-                    app.Run(async context =>
-                    {
-                        var localizer = context.RequestServices.GetService<IStringLocalizer<Model>>();
-
-                        LocalizationHelper.SetCurrentCulture("ar");
-
-                        Assert.Equal("مرحباً", localizer["Hello"]);
-
-                        await Task.CompletedTask;
-                    });
-                });
-
-            using (var server = new TestServer(webHostBuilder))
+    [Fact]
+    public async Task LocalizerReturnsTranslationFromInnerClass()
+    {
+        var webHostBuilder = new WebHostBuilder()
+            .ConfigureServices(services =>
             {
-                var client = server.CreateClient();
-                var response = await client.GetAsync("/");
-            }
-        }
-
-        private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
-            => _localizationOptions.Setup(o => o.Value)
-                .Returns(() => new JsonLocalizationOptions {
-                    ResourcesPath = resourcesPath,
-                    ResourcesType = resourcesType
-                });
-
-        public class InnerClassStartup
-        {
-            public void ConfigureServices(IServiceCollection services)
-            {
-                services.AddMvc();
-                services.AddLocalization();
                 services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
-            }
-
-            public void Configure(IApplicationBuilder app, IStringLocalizer<Model> localizer)
+            })
+            .Configure(app =>
             {
-                var supportedCultures = new[] { "ar", "en" };
-                app.UseRequestLocalization(options =>
-                    options
-                        .AddSupportedCultures(supportedCultures)
-                        .AddSupportedUICultures(supportedCultures)
-                        .SetDefaultCulture("ar")
-                );
+                app.UseRequestLocalization("en", "ar");
 
-                app.Run(async (context) =>
+                app.Run(async context =>
                 {
-                    var loc = localizer["Hello"];
-                    await context.Response.WriteAsync(localizer["Hello"]);
+                    var localizer = context.RequestServices.GetService<IStringLocalizer<Model>>();
+
+                    LocalizationHelper.SetCurrentCulture("ar");
+
+                    Assert.Equal("مرحباً", localizer["Hello"]);
+
+                    await Task.CompletedTask;
                 });
-            }
+            });
+
+        using var server = new TestServer(webHostBuilder);
+        var client = server.CreateClient();
+        var response = await client.GetAsync("/");
+    }
+
+    private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
+        => _localizationOptions.Setup(o => o.Value)
+            .Returns(() => new JsonLocalizationOptions {
+                ResourcesPath = resourcesPath,
+                ResourcesType = resourcesType
+            });
+
+    public class InnerClassStartup
+    {
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvc();
+            services.AddLocalization();
+            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
         }
 
-        public class Model
+        public void Configure(IApplicationBuilder app, IStringLocalizer<Model> localizer)
         {
-            public string Hello { get; set; }
+            var supportedCultures = new[] { "ar", "en" };
+            app.UseRequestLocalization(options =>
+                options
+                    .AddSupportedCultures(supportedCultures)
+                    .AddSupportedUICultures(supportedCultures)
+                    .SetDefaultCulture("ar")
+            );
+
+            app.Run(async (context) =>
+            {
+                var loc = localizer["Hello"];
+                await context.Response.WriteAsync(localizer["Hello"]);
+            });
         }
+    }
+
+    public class Model
+    {
+        public string Hello { get; set; }
     }
 }

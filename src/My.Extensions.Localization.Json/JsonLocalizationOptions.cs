@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Localization;
 
-namespace My.Extensions.Localization.Json
+namespace My.Extensions.Localization.Json;
+
+public class JsonLocalizationOptions : LocalizationOptions
 {
-    public class JsonLocalizationOptions : LocalizationOptions
-    {
-        public ResourcesType ResourcesType { get; set; } = ResourcesType.TypeBased;
-    }
+    public ResourcesType ResourcesType { get; set; } = ResourcesType.TypeBased;
 }
