@@ -19,7 +19,7 @@ namespace My.Extensions.Localization.Json
         private readonly IResourceStringProvider _resourceStringProvider;
         private readonly ILogger _logger;
 
-        private string _searchedLocation;
+        private string _searchedLocation = string.Empty;
 
         public JsonStringLocalizer(
             JsonResourceManager jsonResourceManager,

@@ -95,7 +95,7 @@ namespace My.Extensions.Localization.Json.Tests
                 {
                     app.UseRequestLocalization("en", "ar");
 
-                    app.Run(context =>
+                    app.Run(async context =>
                     {
                         var localizer = context.RequestServices.GetService<IStringLocalizer<Model>>();
 
@@ -103,7 +103,7 @@ namespace My.Extensions.Localization.Json.Tests
 
                         Assert.Equal("مرحباً", localizer["Hello"]);
 
-                        return Task.FromResult(0);
+                        await Task.CompletedTask;
                     });
                 });
 
