@@ -2,23 +2,22 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 
-namespace My.Extensions.Localization.Json.Internal
+namespace My.Extensions.Localization.Json.Internal;
+
+internal static class JsonStringLocalizerLoggerExtensions
 {
-    internal static class JsonStringLocalizerLoggerExtensions
+    private static readonly Action<ILogger, string, string, CultureInfo, Exception> _searchedLocation;
+
+    static JsonStringLocalizerLoggerExtensions()
     {
-        private static readonly Action<ILogger, string, string, CultureInfo, Exception> _searchedLocation;
+        _searchedLocation = LoggerMessage.Define<string, string, CultureInfo>(
+            LogLevel.Debug,
+            1,
+            $"{nameof(JsonStringLocalizer)} searched for '{{Key}}' in '{{LocationSearched}}' with culture '{{Culture}}'.");
+    }
 
-        static JsonStringLocalizerLoggerExtensions()
-        {
-            _searchedLocation = LoggerMessage.Define<string, string, CultureInfo>(
-                LogLevel.Debug,
-                1,
-                $"{nameof(JsonStringLocalizer)} searched for '{{Key}}' in '{{LocationSearched}}' with culture '{{Culture}}'.");
-        }
-
-        public static void SearchedLocation(this ILogger logger, string key, string searchedLocation, CultureInfo culture)
-        {
-            _searchedLocation(logger, key, searchedLocation, culture, null);
-        }
+    public static void SearchedLocation(this ILogger logger, string key, string searchedLocation, CultureInfo culture)
+    {
+        _searchedLocation(logger, key, searchedLocation, culture, null);
     }
 }

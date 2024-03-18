@@ -1,7 +1,6 @@
-﻿namespace My.Extensions.Localization.Json.Tests.Common
-{
-    internal class Test
-    {
+﻿namespace My.Extensions.Localization.Json.Tests.Common;
 
-    }
+internal class Test
+{
+
 }

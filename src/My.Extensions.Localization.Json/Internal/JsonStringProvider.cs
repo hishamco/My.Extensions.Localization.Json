@@ -3,53 +3,43 @@ using System.Globalization;
 using System.Resources;
 using My.Extensions.Localization.Json.Caching;
 
-namespace My.Extensions.Localization.Json.Internal
+namespace My.Extensions.Localization.Json.Internal;
+
+public class JsonStringProvider(IResourceNamesCache resourceNamesCache, JsonResourceManager jsonResourceManager) : IResourceStringProvider
 {
-    public class JsonStringProvider : IResourceStringProvider
+    private string GetResourceCacheKey(CultureInfo culture)
     {
-        private readonly IResourceNamesCache _resourceNamesCache;
-        private readonly JsonResourceManager _jsonResourceManager;
+        var resourceName = jsonResourceManager.ResourceName;
 
-        public JsonStringProvider(IResourceNamesCache resourceCache, JsonResourceManager jsonResourceManager)
+        return $"Culture={culture.Name};resourceName={resourceName}";
+    }
+
+    public IList<string> GetAllResourceStrings(CultureInfo culture, bool throwOnMissing)
+    {
+        var cacheKey = GetResourceCacheKey(culture);
+
+        return resourceNamesCache.GetOrAdd(cacheKey, _ =>
         {
-            _jsonResourceManager = jsonResourceManager;
-            _resourceNamesCache = resourceCache;
-        }
-
-        private string GetResourceCacheKey(CultureInfo culture)
-        {
-            var resourceName = _jsonResourceManager.ResourceName;
-
-            return $"Culture={culture.Name};resourceName={resourceName}";
-        }
-
-        public IList<string> GetAllResourceStrings(CultureInfo culture, bool throwOnMissing)
-        {
-            var cacheKey = GetResourceCacheKey(culture);
-
-            return _resourceNamesCache.GetOrAdd(cacheKey, _ =>
+            var resourceSet = jsonResourceManager.GetResourceSet(culture, tryParents: false);
+            if (resourceSet == null)
             {
-                var resourceSet = _jsonResourceManager.GetResourceSet(culture, tryParents: false);
-                if (resourceSet == null)
+                if (throwOnMissing)
                 {
-                    if (throwOnMissing)
-                    {
-                        throw new MissingManifestResourceException($"The manifest resource for the culture '{culture.Name}' is missing.");
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    throw new MissingManifestResourceException($"The manifest resource for the culture '{culture.Name}' is missing.");
                 }
-
-                var names = new List<string>();
-                foreach (var entry in resourceSet)
+                else
                 {
-                    names.Add(entry.Key);
+                    return null;
                 }
+            }
 
-                return names;
-            });
-        }
+            var names = new List<string>();
+            foreach (var entry in resourceSet)
+            {
+                names.Add(entry.Key);
+            }
+
+            return names;
+        });
     }
 }

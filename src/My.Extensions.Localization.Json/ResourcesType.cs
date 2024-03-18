@@ -1,8 +1,7 @@
-﻿namespace My.Extensions.Localization.Json
+﻿namespace My.Extensions.Localization.Json;
+
+public enum ResourcesType
 {
-    public enum ResourcesType
-    {
-        CultureBased,
-        TypeBased
-    }
+    CultureBased,
+    TypeBased
 }

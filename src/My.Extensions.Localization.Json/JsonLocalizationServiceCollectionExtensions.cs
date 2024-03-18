@@ -4,56 +4,42 @@ using Microsoft.Extensions.Localization;
 using My.Extensions.Localization.Json;
 using My.Extensions.Localization.Json.Internal;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Microsoft.Extensions.DependencyInjection;
+
+public static class JsonLocalizationServiceCollectionExtensions
 {
-    public static class JsonLocalizationServiceCollectionExtensions
+    public static IServiceCollection AddJsonLocalization(this IServiceCollection services)
     {
-        public static IServiceCollection AddJsonLocalization(this IServiceCollection services)
-        {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+        ArgumentNullException.ThrowIfNull(services);
 
-            services.AddOptions();
+        services.AddOptions();
 
-            AddJsonLocalizationServices(services);
+        AddJsonLocalizationServices(services);
 
-            return services;
-        }
+        return services;
+    }
 
-        public static IServiceCollection AddJsonLocalization(
-           this IServiceCollection services,
-           Action<JsonLocalizationOptions> setupAction)
-        {
-            if (services == null)
-            {
-                throw new ArgumentNullException(nameof(services));
-            }
+    public static IServiceCollection AddJsonLocalization(this IServiceCollection services, Action<JsonLocalizationOptions> setupAction)
+    {
+        ArgumentNullException.ThrowIfNull(services);
 
-            if (setupAction == null)
-            {
-                throw new ArgumentNullException(nameof(setupAction));
-            }
-            
-            AddJsonLocalizationServices(services, setupAction);
+        ArgumentNullException.ThrowIfNull(setupAction);
 
-            return services;
-        }
+        AddJsonLocalizationServices(services, setupAction);
 
-        internal static void AddJsonLocalizationServices(IServiceCollection services)
-        {
-            services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
-            services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
-            services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
-        }
+        return services;
+    }
 
-        internal static void AddJsonLocalizationServices(
-            IServiceCollection services,
-            Action<JsonLocalizationOptions> setupAction)
-        {
-            AddJsonLocalizationServices(services);
-            services.Configure(setupAction);
-        }
+    internal static void AddJsonLocalizationServices(IServiceCollection services)
+    {
+        services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
+        services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
+        services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
+    }
+
+    internal static void AddJsonLocalizationServices(IServiceCollection services, Action<JsonLocalizationOptions> setupAction)
+    {
+        AddJsonLocalizationServices(services);
+        services.Configure(setupAction);
     }
 }

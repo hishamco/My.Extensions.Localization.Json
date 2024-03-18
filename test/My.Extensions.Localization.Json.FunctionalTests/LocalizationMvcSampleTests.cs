@@ -5,92 +5,86 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace LocalizationSample.Mvc.FunctionalTest
+namespace LocalizationSample.Mvc.FunctionalTest;
+
+public class LocalizationMvcSampleTests(WebApplicationFactory<Startup> factory) : IClassFixture<WebApplicationFactory<Startup>>
 {
-    public class LocalizationMvcSampleTests : IClassFixture<WebApplicationFactory<Startup>>
+    private readonly HttpClient _client = factory.CreateClient();
+
+    [Theory]
+    [InlineData("en-US", "Privacy Policy")]
+    [InlineData("fr-FR", "Politique de confidentialité")]
+    public async Task LocalizePrivacyView(string culture, string expected)
     {
-        private readonly HttpClient _client;
+        // Arrange
+        var url = "/Home/Privacy";
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        var cookieValue = $"c={culture}|uic={culture}";
+        request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
 
-        public LocalizationMvcSampleTests(WebApplicationFactory<Startup> factory)
-        {
-            _client = factory.CreateClient();
-        }
+        // Act
+        var response = await _client.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
 
-        [Theory]
-        [InlineData("en-US", "Privacy Policy")]
-        [InlineData("fr-FR", "Politique de confidentialité")]
-        public async Task LocalizePrivacyView(string culture, string expected)
-        {
-            // Arrange
-            var url = "/Home/Privacy";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var cookieValue = $"c={culture}|uic={culture}";
-            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
-
-            // Act
-            var response = await _client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
-
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Contains(expected, content);
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains(expected, content);
+    }
 
 
-        [Fact]
-        public async Task LocalizeRegisterViewModel()
-        {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "/Account/Register");
-            var culture = "fr-FR";
-            var cookieValue = $"c={culture}|uic={culture}";
-            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+    [Fact]
+    public async Task LocalizeRegisterViewModel()
+    {
+        // Arrange
+        var request = new HttpRequestMessage(HttpMethod.Get, "/Account/Register");
+        var culture = "fr-FR";
+        var cookieValue = $"c={culture}|uic={culture}";
+        request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
 
-            // Act
-            var response = await _client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+        // Act
+        var response = await _client.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Contains("Mot de passe", content);
-            Assert.Contains("Confirmez le mot de passe", content);
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Mot de passe", content);
+        Assert.Contains("Confirmez le mot de passe", content);
+    }
 
-        [Fact]
-        public async Task LocalizeViewWithPathConventions()
-        {
-            // Arrange
-            var request = new HttpRequestMessage(HttpMethod.Get, "/");
-            var culture = "fr-FR";
-            var cookieValue = $"c={culture}|uic={culture}";
-            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+    [Fact]
+    public async Task LocalizeViewWithPathConventions()
+    {
+        // Arrange
+        var request = new HttpRequestMessage(HttpMethod.Get, "/");
+        var culture = "fr-FR";
+        var cookieValue = $"c={culture}|uic={culture}";
+        request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
 
-            // Act
-            var response = await _client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+        // Act
+        var response = await _client.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Contains("Bienvenu", content);
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Bienvenu", content);
+    }
 
-        [Fact]
-        public async Task StringLocalizeShouldWorkWithControllersPrefix()
-        {
-            // Arrange
-            var url = "/Home/Privacy";
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            var culture = "fr-FR";
-            var cookieValue = $"c={culture}|uic={culture}";
-            request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
+    [Fact]
+    public async Task StringLocalizeShouldWorkWithControllersPrefix()
+    {
+        // Arrange
+        var url = "/Home/Privacy";
+        var request = new HttpRequestMessage(HttpMethod.Get, url);
+        var culture = "fr-FR";
+        var cookieValue = $"c={culture}|uic={culture}";
+        request.Headers.Add("Cookie", $"{CookieRequestCultureProvider.DefaultCookieName}={cookieValue}");
 
-            // Act
-            var response = await _client.SendAsync(request);
-            var content = await response.Content.ReadAsStringAsync();
+        // Act
+        var response = await _client.SendAsync(request);
+        var content = await response.Content.ReadAsStringAsync();
 
-            // Assert
-            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-            Assert.Contains("Utilisez cette page pour détailler la politique de confidentialité de votre site.", WebUtility.HtmlDecode(content));
-        }
+        // Assert
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Contains("Utilisez cette page pour détailler la politique de confidentialité de votre site.", WebUtility.HtmlDecode(content));
     }
 }
