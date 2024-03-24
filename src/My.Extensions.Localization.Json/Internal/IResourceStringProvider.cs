@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 
-namespace My.Extensions.Localization.Json.Internal
+namespace My.Extensions.Localization.Json.Internal;
+
+public interface IResourceStringProvider
 {
-    public interface IResourceStringProvider
-    {
-        IList<string> GetAllResourceStrings(CultureInfo culture, bool throwOnMissing);
-    }
+    IList<string> GetAllResourceStrings(CultureInfo culture, bool throwOnMissing);
 }
