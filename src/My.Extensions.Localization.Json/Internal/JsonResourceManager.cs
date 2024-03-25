@@ -3,18 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal;
 
 public class JsonResourceManager(string resourcesPath, string resourceName = null)
 {
-    private static readonly JsonDocumentOptions _jsonDocumentOptions = new()
-    {
-        CommentHandling = JsonCommentHandling.Skip,
-        AllowTrailingCommas = true,
-    };
-
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
 
     public string ResourceName { get; } = resourceName;
@@ -70,9 +63,9 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
 
         do
         {
-            if (_resourcesCache.ContainsKey(culture.Name))
+            if (_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
             {
-                if (_resourcesCache[culture.Name].TryGetValue(name, out string value))
+                if (resources.TryGetValue(name, out string value))
                 {
                     return value;
                 }
@@ -93,12 +86,12 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
             return null;
         }
 
-        if (!_resourcesCache.ContainsKey(culture.Name))
+        if (!_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
         {
             return null;
         }
 
-        return _resourcesCache[culture.Name].TryGetValue(name, out string value)
+        return resources.TryGetValue(name, out string value)
             ? value
             : null;
     }
@@ -108,9 +101,8 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
         if (string.IsNullOrEmpty(ResourceName))
         {
             var file = Path.Combine(ResourcesPath, $"{culture.Name}.json");
-            var resources = LoadJsonResources(file);
 
-            _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
+            GetOrAddResourceCache(file);
         }
         else
         {
@@ -132,23 +124,12 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
 
             foreach (var file in resourceFiles)
             {
-                var resources = LoadJsonResources(file);
                 var fileName = Path.GetFileNameWithoutExtension(file);
                 var cultureName = fileName[(fileName.LastIndexOf('.') + 1)..];
 
                 culture = CultureInfo.GetCultureInfo(cultureName);
 
-                if (_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> value))
-                {
-                    foreach (var resource in resources)
-                    {
-                        value.TryAdd(resource.Key, resource.Value);
-                    }
-                }
-                else
-                {
-                    _resourcesCache.TryAdd(culture.Name, new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value)));
-                }
+                GetOrAddResourceCache(file);
             }
         }
 
@@ -165,20 +146,15 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
                 ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{culture}*.json")
                 : [];
         }
-    }
 
-    private static IDictionary<string, string> LoadJsonResources(string filePath)
-    {
-        var resources = new Dictionary<string, string>();
-        if (File.Exists(filePath))
+        ConcurrentDictionary<string, string> GetOrAddResourceCache(string resourceFile)
         {
-            using var reader = new StreamReader(filePath);
+            return _resourcesCache.GetOrAdd(culture.Name, _ =>
+            {
+                var resources = JsonResourceLoader.Load(resourceFile);
 
-            using var document = JsonDocument.Parse(reader.BaseStream, _jsonDocumentOptions);
-
-            resources = document.RootElement.EnumerateObject().ToDictionary(e => e.Name, e => e.Value.ToString());
+                return new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value));
+            });
         }
-
-        return resources;
     }
 }
