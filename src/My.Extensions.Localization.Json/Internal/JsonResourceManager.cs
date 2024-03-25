@@ -1,8 +1,10 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal;
 
@@ -30,7 +32,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
             var allResources = new ConcurrentDictionary<string, string>();
             do
             {
-                if (_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
+                if (_resourcesCache.TryGetValue(culture.Name, out var resources))
                 {
                     foreach (var entry in resources)
                     {
@@ -45,7 +47,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
         }
         else
         {
-            _resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources);
+            _resourcesCache.TryGetValue(culture.Name, out var resources);
 
             return resources;
         }
@@ -63,11 +65,11 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
 
         do
         {
-            if (_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
+            if (_resourcesCache.TryGetValue(culture.Name, out var resources))
             {
-                if (resources.TryGetValue(name, out string value))
+                if (resources.TryGetValue(name, out var value))
                 {
-                    return value;
+                    return value.ToString();
                 }
             }
 
@@ -86,13 +88,13 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
             return null;
         }
 
-        if (!_resourcesCache.TryGetValue(culture.Name, out ConcurrentDictionary<string, string> resources))
+        if (!_resourcesCache.TryGetValue(culture.Name, out var resources))
         {
             return null;
         }
 
-        return resources.TryGetValue(name, out string value)
-            ? value
+        return resources.TryGetValue(name, out var value)
+            ? value.ToString()
             : null;
     }
 
@@ -156,5 +158,27 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
                 return new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value));
             });
         }
+    }
+
+    private static string GetJsonElement(JsonElement jsonElement, string path)
+    {
+        if (jsonElement.ValueKind == JsonValueKind.Null || jsonElement.ValueKind == JsonValueKind.Undefined)
+        {
+            return default;
+        }
+
+        string[] segments = path.Split(new[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+
+        for (int n = 0; n < segments.Length; n++)
+        {
+            jsonElement = jsonElement.TryGetProperty(segments[n], out JsonElement value) ? value : default;
+
+            if (jsonElement.ValueKind == JsonValueKind.Null || jsonElement.ValueKind == JsonValueKind.Undefined)
+            {
+                return default;
+            }
+        }
+
+        return jsonElement.ToString();
     }
 }
