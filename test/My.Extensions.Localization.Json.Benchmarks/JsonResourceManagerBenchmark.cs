@@ -1,6 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
 using My.Extensions.Localization.Json.Internal;
 using System.Globalization;
+using System.IO;
 
 namespace My.Extensions.Localization.Json.Benchmarks;
 
@@ -12,19 +13,16 @@ public class JsonResourceManagerBenchmark
 
     static JsonResourceManagerBenchmark()
     {
-        _jsonResourceManager = new JsonResourceManager("Resources\\fr-FR.json");
+        var resources = "Resources";
+        _jsonResourceManager = new JsonResourceManager(resources, Path.Combine("fr-FR.json"));
         _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
     }
 
     [Benchmark]
     public void EvaluateGetResourceSetWithoutCultureFallback()
-    {
-        _jsonResourceManager.GetResourceSet(_frenchCulture, tryParents: false);
-    }
+        => _jsonResourceManager.GetResourceSet(_frenchCulture, tryParents: false);
 
     [Benchmark]
     public void EvaluateGetResourceSetWithCultureFallback()
-    {
-        _jsonResourceManager.GetResourceSet(_frenchCulture, tryParents: true);
-    }
+        => _jsonResourceManager.GetResourceSet(_frenchCulture, tryParents: true);
 }
