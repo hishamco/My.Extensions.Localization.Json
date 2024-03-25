@@ -81,9 +81,6 @@ public class JsonStringLocalizer : IStringLocalizer
     public virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) =>
         GetAllStrings(includeParentCultures, CultureInfo.CurrentUICulture);
 
-    [Obsolete("This method is obsolete and will be removed in a future version.")]
-    public IStringLocalizer WithCulture(CultureInfo culture) => this;
-
     protected virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(culture);
