@@ -79,7 +79,7 @@ public class JsonStringLocalizer : IStringLocalizer
         ArgumentNullException.ThrowIfNull(culture);
 
         var resourceNames = includeParentCultures
-            ? GetResourceNamesFromCultureHierarchy(culture)
+            ? GetResourceNamesFromCultureHierarchy(culture).AsEnumerable()
             : _resourceStringProvider.GetAllResourceStrings(culture, true);
 
         foreach (var name in resourceNames)
@@ -117,7 +117,7 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
-    private IEnumerable<string> GetResourceNamesFromCultureHierarchy(CultureInfo startingCulture)
+    private HashSet<string> GetResourceNamesFromCultureHierarchy(CultureInfo startingCulture)
     {
         var currentCulture = startingCulture;
         var resourceNames = new HashSet<string>();
