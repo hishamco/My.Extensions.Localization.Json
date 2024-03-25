@@ -6,13 +6,24 @@ using System.Linq;
 
 namespace My.Extensions.Localization.Json.Internal;
 
-public class JsonResourceManager(string resourcesPath, string resourceName = null)
+public class JsonResourceManager
 {
+    private readonly JsonFileWatcher _jsonFileWatcher;
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
 
-    public string ResourceName { get; } = resourceName;
 
-    public string ResourcesPath { get; } = resourcesPath;
+    public JsonResourceManager(string resourcesPath, string resourceName = null)
+    {
+        ResourcesPath = resourcesPath;
+        ResourceName = resourceName;
+        
+        _jsonFileWatcher = new(resourcesPath);
+        _jsonFileWatcher.Changed += RefreshResourcesCache;
+    }
+
+    public string ResourceName { get; }
+
+    public string ResourcesPath { get; }
 
     public string ResourcesFilePath { get; private set; }
 
@@ -20,7 +31,8 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
     {
         TryLoadResourceSet(culture);
 
-        if (!_resourcesCache.ContainsKey(culture.Name))
+        var key = $"{ResourceName}.{culture.Name}";
+        if (!_resourcesCache.ContainsKey(key))
         {
             return null;
         }
@@ -30,7 +42,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
             var allResources = new ConcurrentDictionary<string, string>();
             do
             {
-                if (_resourcesCache.TryGetValue(culture.Name, out var resources))
+                if (_resourcesCache.TryGetValue(key, out var resources))
                 {
                     foreach (var entry in resources)
                     {
@@ -45,7 +57,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
         }
         else
         {
-            _resourcesCache.TryGetValue(culture.Name, out var resources);
+            _resourcesCache.TryGetValue(key, out var resources);
 
             return resources;
         }
@@ -63,7 +75,8 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
 
         do
         {
-            if (_resourcesCache.TryGetValue(culture.Name, out var resources))
+            var key = $"{ResourceName}.{culture.Name}";
+            if (_resourcesCache.TryGetValue(key, out var resources))
             {
                 if (resources.TryGetValue(name, out var value))
                 {
@@ -86,7 +99,8 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
             return null;
         }
 
-        if (!_resourcesCache.TryGetValue(culture.Name, out var resources))
+        var key = $"{ResourceName}.{culture.Name}";
+        if (!_resourcesCache.TryGetValue(key, out var resources))
         {
             return null;
         }
@@ -102,7 +116,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
         {
             var file = Path.Combine(ResourcesPath, $"{culture.Name}.json");
 
-            GetOrAddResourceCache(file);
+            TryAddResources(file);
         }
         else
         {
@@ -129,7 +143,7 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
 
                 culture = CultureInfo.GetCultureInfo(cultureName);
 
-                GetOrAddResourceCache(file);
+                TryAddResources(file);
             }
         }
 
@@ -147,14 +161,34 @@ public class JsonResourceManager(string resourcesPath, string resourceName = nul
                 : [];
         }
 
-        ConcurrentDictionary<string, string> GetOrAddResourceCache(string resourceFile)
+        void TryAddResources(string resourceFile)
         {
-            return _resourcesCache.GetOrAdd(culture.Name, _ =>
+            var key = $"{ResourceName}.{culture.Name}";
+            if (!_resourcesCache.ContainsKey(key))
             {
                 var resources = JsonResourceLoader.Load(resourceFile);
 
-                return new ConcurrentDictionary<string, string>(resources.ToDictionary(r => r.Key, r => r.Value));
-            });
+                _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
+            }
+        }
+    }
+
+    private void RefreshResourcesCache(object sender, FileSystemEventArgs e)
+    {
+        var key = Path.GetFileNameWithoutExtension(e.FullPath);
+        if (_resourcesCache.TryGetValue(key, out var resources))
+        {
+            if (!resources.IsEmpty)
+            {
+                resources.Clear();
+
+                var freshResources = JsonResourceLoader.Load(e.FullPath);
+
+                foreach (var item in freshResources)
+                {
+                    _resourcesCache[key].TryAdd(item.Key, item.Value);
+                }
+            }
         }
     }
 }
