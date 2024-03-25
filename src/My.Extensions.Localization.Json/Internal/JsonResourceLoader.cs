@@ -4,7 +4,7 @@ using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal;
 
-internal static class JsonResourceLoader
+public static class JsonResourceLoader
 {
     private static readonly JsonDocumentOptions _jsonDocumentOptions = new()
     {
