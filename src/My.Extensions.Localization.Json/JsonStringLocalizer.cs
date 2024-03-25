@@ -106,8 +106,8 @@ public class JsonStringLocalizer : IStringLocalizer
         try
         {
             return culture == null
-                    ? _jsonResourceManager.GetString(name)
-                    : _jsonResourceManager.GetString(name, culture);
+                ? _jsonResourceManager.GetString(name)
+                : _jsonResourceManager.GetString(name, culture);
         }
         catch (MissingManifestResourceException)
         {

@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LocalizationSample.Blazor.Client", "samples\LocalizationSample.Blazor.Client\LocalizationSample.Blazor.Client.csproj", "{BCDCE0D6-4A71-49CF-8F81-1233FB14DEA3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "My.Extensions.Localization.Json.Benchmarks", "test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj", "{37DA3363-09EC-4686-89A9-2D12B2472C52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "My.Extensions.Localization.Json.Benchmarks", "test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj", "{37DA3363-09EC-4686-89A9-2D12B2472C52}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -37,8 +37,8 @@ Global
 		{15E86906-2A6F-4F35-8D06-404CD33C82D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{15E86906-2A6F-4F35-8D06-404CD33C82D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{15E86906-2A6F-4F35-8D06-404CD33C82D5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Debug|Any CPU.Build.0 = Release|Any CPU
+		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73B1195D-006C-40EE-A36F-2EDCFB2FFCDE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4732D5B3-AEB5-4AF4-8679-7EBB4B2FBF95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
