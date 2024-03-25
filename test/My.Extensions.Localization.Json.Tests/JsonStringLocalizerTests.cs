@@ -113,8 +113,8 @@ public class JsonStringLocalizerTests
     }
 
     [Theory]
-    [InlineData(true, 3)]
-    [InlineData(false, 2)]
+    [InlineData(true, 9)]
+    [InlineData(false, 8)]
     public void JsonStringLocalizer_GetAllStrings(bool includeParent, int expected)
     {
         // Arrange
@@ -158,6 +158,23 @@ public class JsonStringLocalizerTests
         using var server = new TestServer(webHostBuilder);
         var client = server.CreateClient();
         var response = await client.GetAsync("/");
+    }
+
+    [Theory]
+    [InlineData("fr-FR", "Book.Page.One", "Page Un")]
+    [InlineData("fr-FR", "Book.Page.Two", "Page Deux")]
+    [InlineData("fr-FR", "Articles[0].Content", "Contenu 1")]
+    [InlineData("fr-FR", "Articles[1].Content", "Contenu 2")]
+    public void GetTranslationUsingKeyHeirarchy(string culture, string name, string expected)
+    {
+        // Arrange
+        LocalizationHelper.SetCurrentCulture(culture);
+
+        // Act
+        string translation = _localizer[name];
+
+        // Assert
+        Assert.Equal(expected, translation);
     }
 
     private class SharedResource

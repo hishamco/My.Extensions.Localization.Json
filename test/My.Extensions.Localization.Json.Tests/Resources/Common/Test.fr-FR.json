@@ -1,4 +1,20 @@
 ﻿{
   "Hello": "Bonjour",
-  "Hello, {0}": "Bonjour, {0}"
+  "Hello, {0}": "Bonjour, {0}",
+  "Book": {
+    "Page": {
+      "One": "Page Un",
+      "Two": "Page Deux"
+    }
+  },
+  "Articles": [
+    {
+      "Title": "Titre 1",
+      "Content": "Contenu 1"
+    },
+    {
+      "Title": "Titre 2",
+      "Content": "Contenu 2"
+    }
+  ]
 }
