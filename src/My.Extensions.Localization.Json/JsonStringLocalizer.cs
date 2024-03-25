@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using My.Extensions.Localization.Json.Internal;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Resources;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
-using My.Extensions.Localization.Json.Internal;
 
 namespace My.Extensions.Localization.Json;
 
@@ -26,12 +27,21 @@ public class JsonStringLocalizer : IStringLocalizer
         ILogger logger)
         : this(jsonResourceManager,
             new JsonStringProvider(resourceNamesCache, jsonResourceManager),
-            resourceNamesCache,
             logger)
     {
-
     }
 
+    public JsonStringLocalizer(
+        JsonResourceManager jsonResourceManager,
+        IResourceStringProvider resourceStringProvider,
+        ILogger logger)
+    {
+        _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
+        _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    [Obsolete("This constructor has been deprected and will be removed in the upcoming major release.")]
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
