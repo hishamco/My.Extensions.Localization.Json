@@ -1,7 +1,8 @@
 # My.Extensions.Localization.Json
+
 JSON Localization Resources
 
-NuGet Package: [![NuGet](https://img.shields.io/nuget/v/My.Extensions.Localization.Json.svg)](https://www.nuget.org/packages/My.Extensions.Localization.Json/3.3.0)
+NuGet Package: [![NuGet](https://img.shields.io/nuget/v/My.Extensions.Localization.Json.svg)](https://www.nuget.org/packages/My.Extensions.Localization.Json/3.4.0)
 
 Build Status: [![Build status](https://github.com/hishamco/My.Extensions.Localization.Json/actions/workflows/build.yml/badge.svg)](https://github.com/hishamco/My.Extensions.Localization.Json/actions?query=workflow%3A%22My.Extensions.Localization.Json%22)
 
