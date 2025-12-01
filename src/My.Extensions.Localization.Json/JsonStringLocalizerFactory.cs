@@ -142,7 +142,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             return typeName;
         }
 
-        var backtickIndex = typeName.IndexOf('`');
+        var backtickIndex = typeName.IndexOf('`', StringComparison.Ordinal);
         if (backtickIndex >= 0)
         {
             return typeName.Substring(0, backtickIndex);
