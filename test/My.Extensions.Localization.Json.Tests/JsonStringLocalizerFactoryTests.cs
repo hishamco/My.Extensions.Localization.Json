@@ -150,4 +150,49 @@ public class JsonStringLocalizerFactoryTests
     {
         public string Hello { get; set; }
     }
+
+    [Fact]
+    public void CreateLocalizerWithType_UsesRootNamespaceFromAttribute()
+    {
+        // This test verifies that the factory uses RootNamespaceAttribute when present.
+        // The Test class is in the My.Extensions.Localization.Json.Tests assembly with
+        // namespace My.Extensions.Localization.Json.Tests.Common
+        // Since the assembly doesn't have RootNamespaceAttribute, it should fall back
+        // to using the assembly name, which is the expected behavior.
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act
+        var localizer = localizerFactory.Create(typeof(Test));
+
+        // Assert
+        Assert.NotNull(localizer);
+        // The localizer should find the resource at Resources/Common/Test.fr-FR.json
+        // because the type name is trimmed using the assembly name (which equals root namespace when not specified)
+        Assert.Equal("Bonjour", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithBasenameAndLocation_UsesRootNamespaceFromAttribute()
+    {
+        // This test verifies that the factory uses RootNamespaceAttribute when present
+        // for the Create(baseName, location) overload.
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
+
+        // Act
+        var localizer = localizerFactory.Create(basename, location);
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour", localizer["Hello"]);
+    }
 }

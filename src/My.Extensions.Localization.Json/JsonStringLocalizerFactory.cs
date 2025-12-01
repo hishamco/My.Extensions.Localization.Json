@@ -47,10 +47,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 
         var typeInfo = resourceSource.GetTypeInfo();
         var assembly = typeInfo.Assembly;
-        var assemblyName = resourceSource.Assembly.GetName().Name;
-        var typeName = $"{assemblyName}.{typeInfo.Name}" == typeInfo.FullName
+        var rootNamespace = GetRootNamespace(assembly);
+        var typeName = $"{rootNamespace}.{typeInfo.Name}" == typeInfo.FullName
             ? typeInfo.Name
-            : TrimPrefix(typeInfo.FullName, assemblyName + ".");
+            : TrimPrefix(typeInfo.FullName, rootNamespace + ".");
 
         resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
         typeName = TryFixInnerClassPath(typeName);
@@ -79,7 +79,8 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             if (_resourcesType == ResourcesType.TypeBased)
             {
                 baseName = TryFixInnerClassPath(baseName);
-                resourceName = TrimPrefix(baseName, location + ".");
+                var rootNamespace = GetRootNamespace(assembly);
+                resourceName = TrimPrefix(baseName, rootNamespace + ".");
             }
 
             return CreateJsonStringLocalizer(resourcesPath, resourceName);
@@ -105,6 +106,14 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         return resourceLocationAttribute == null
             ? _resourcesRelativePath
             : resourceLocationAttribute.ResourceLocation;
+    }
+
+    private static string GetRootNamespace(Assembly assembly)
+    {
+        var rootNamespaceAttribute = assembly.GetCustomAttribute<RootNamespaceAttribute>();
+
+        return rootNamespaceAttribute?.RootNamespace
+            ?? assembly.GetName().Name;
     }
 
     private static string TrimPrefix(string name, string prefix)
