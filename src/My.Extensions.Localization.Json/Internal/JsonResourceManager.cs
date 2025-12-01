@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -8,22 +9,34 @@ namespace My.Extensions.Localization.Json.Internal;
 
 public class JsonResourceManager
 {
-    private readonly JsonFileWatcher _jsonFileWatcher;
+    private readonly List<JsonFileWatcher> _jsonFileWatchers = new();
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
 
 
-    public JsonResourceManager(string resourcesPath, string resourceName = null)
+    public JsonResourceManager(string resourcesPath, string resourceName = null, params string[] additionalResourcesPaths)
     {
         ResourcesPath = resourcesPath;
         ResourceName = resourceName;
+        AdditionalResourcesPaths = additionalResourcesPaths ?? Array.Empty<string>();
         
-        _jsonFileWatcher = new(resourcesPath);
-        _jsonFileWatcher.Changed += RefreshResourcesCache;
+        SetupFileWatcher(resourcesPath);
+        
+        foreach (var additionalPath in AdditionalResourcesPaths)
+        {
+            SetupFileWatcher(additionalPath);
+        }
+    }
+
+    public JsonResourceManager(string resourcesPath, params string[] additionalResourcesPaths)
+        : this(resourcesPath, null, additionalResourcesPaths)
+    {
     }
 
     public string ResourceName { get; }
 
     public string ResourcesPath { get; }
+
+    public string[] AdditionalResourcesPaths { get; }
 
     public string ResourcesFilePath { get; private set; }
 
@@ -112,11 +125,23 @@ public class JsonResourceManager
 
     private void TryLoadResourceSet(CultureInfo culture)
     {
+        // Load from primary resources path
+        TryLoadResourceSetFromPath(ResourcesPath, culture);
+        
+        // Load from additional resources paths (merging resources)
+        foreach (var additionalPath in AdditionalResourcesPaths)
+        {
+            TryLoadResourceSetFromPath(additionalPath, culture);
+        }
+    }
+
+    private void TryLoadResourceSetFromPath(string basePath, CultureInfo culture)
+    {
         if (string.IsNullOrEmpty(ResourceName))
         {
-            var file = Path.Combine(ResourcesPath, $"{culture.Name}.json");
+            var file = Path.Combine(basePath, $"{culture.Name}.json");
 
-            TryAddResources(file);
+            TryAddResources(file, culture);
         }
         else
         {
@@ -124,16 +149,19 @@ public class JsonResourceManager
             var rootCulture = culture.Name[..2];
             if (ResourceName.Contains('.'))
             {
-                resourceFiles = Directory.EnumerateFiles(ResourcesPath, $"{ResourceName}.{rootCulture}*.json");
+                if (Directory.Exists(basePath))
+                {
+                    resourceFiles = Directory.EnumerateFiles(basePath, $"{ResourceName}.{rootCulture}*.json");
+                }
 
                 if (!resourceFiles.Any())
                 {
-                    resourceFiles = GetResourceFiles(rootCulture);
+                    resourceFiles = GetResourceFiles(basePath, rootCulture);
                 }
             }
             else
             {
-                resourceFiles = GetResourceFiles(rootCulture);
+                resourceFiles = GetResourceFiles(basePath, rootCulture);
             }
 
             foreach (var file in resourceFiles)
@@ -141,36 +169,59 @@ public class JsonResourceManager
                 var fileName = Path.GetFileNameWithoutExtension(file);
                 var cultureName = fileName[(fileName.LastIndexOf('.') + 1)..];
 
-                culture = CultureInfo.GetCultureInfo(cultureName);
+                var fileCulture = CultureInfo.GetCultureInfo(cultureName);
 
-                TryAddResources(file);
+                TryAddResources(file, fileCulture);
             }
         }
 
-        IEnumerable<string> GetResourceFiles(string culture)
+        IEnumerable<string> GetResourceFiles(string baseResourcesPath, string cultureName)
         {
             var resourcePath = ResourceName.Replace('.', Path.AltDirectorySeparatorChar);
             var resourcePathLastDirectorySeparatorIndex = resourcePath.LastIndexOf(Path.AltDirectorySeparatorChar);
             var resourceName = resourcePath[(resourcePathLastDirectorySeparatorIndex + 1)..];
             var resourcesPath = resourcePathLastDirectorySeparatorIndex == -1
-                ? ResourcesPath
-                : Path.Combine(ResourcesPath, resourcePath[..resourcePathLastDirectorySeparatorIndex]);
+                ? baseResourcesPath
+                : Path.Combine(baseResourcesPath, resourcePath[..resourcePathLastDirectorySeparatorIndex]);
 
             return Directory.Exists(resourcesPath)
-                ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{culture}*.json")
+                ? Directory.EnumerateFiles(resourcesPath, $"{resourceName}.{cultureName}*.json")
                 : [];
         }
 
-        void TryAddResources(string resourceFile)
+        void TryAddResources(string resourceFile, CultureInfo resourceCulture)
         {
-            var key = $"{ResourceName}.{culture.Name}";
+            var key = $"{ResourceName}.{resourceCulture.Name}";
             if (!_resourcesCache.ContainsKey(key))
             {
                 var resources = JsonResourceLoader.Load(resourceFile);
 
                 _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
             }
+            else
+            {
+                // Merge resources from additional paths (don't override existing keys)
+                var existingResources = _resourcesCache[key];
+                var additionalResources = JsonResourceLoader.Load(resourceFile);
+                
+                foreach (var item in additionalResources)
+                {
+                    existingResources.TryAdd(item.Key, item.Value);
+                }
+            }
         }
+    }
+
+    private void SetupFileWatcher(string path)
+    {
+        if (!Directory.Exists(path))
+        {
+            return;
+        }
+        
+        var watcher = new JsonFileWatcher(path);
+        watcher.Changed += RefreshResourcesCache;
+        _jsonFileWatchers.Add(watcher);
     }
 
     private void RefreshResourcesCache(object sender, FileSystemEventArgs e)

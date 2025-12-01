@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
@@ -17,6 +19,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     private readonly IResourceNamesCache _resourceNamesCache = new ResourceNamesCache();
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
     private readonly string _resourcesRelativePath;
+    private readonly IList<string> _additionalResourcesPaths;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
     private readonly ILoggerFactory _loggerFactory;
 
@@ -27,6 +30,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         ArgumentNullException.ThrowIfNull(localizationOptions);
 
         _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
+        _additionalResourcesPaths = localizationOptions.Value.AdditionalResourcesPaths ?? new List<string>();
         _resourcesType = localizationOptions.Value.ResourcesType;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
@@ -90,9 +94,13 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         string resourcesPath,
         string resourceName)
     {
+        var additionalResourcesPaths = _additionalResourcesPaths
+            .Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))
+            .ToArray();
+        
         var resourceManager = _resourcesType == ResourcesType.TypeBased
-            ? new JsonResourceManager(resourcesPath, resourceName)
-            : new JsonResourceManager(resourcesPath);
+            ? new JsonResourceManager(resourcesPath, resourceName, additionalResourcesPaths)
+            : new JsonResourceManager(resourcesPath, additionalResourcesPaths);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
         return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);
