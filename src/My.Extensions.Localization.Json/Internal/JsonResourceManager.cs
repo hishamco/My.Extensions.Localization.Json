@@ -11,6 +11,7 @@ public class JsonResourceManager
 {
     private readonly List<JsonFileWatcher> _jsonFileWatchers = new();
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
+    private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
 
     public JsonResourceManager(string resourcesPath, string resourceName = null, params string[] additionalResourcesPaths)
@@ -192,6 +193,15 @@ public class JsonResourceManager
         void TryAddResources(string resourceFile, CultureInfo resourceCulture)
         {
             var key = $"{ResourceName}.{resourceCulture.Name}";
+            
+            // Track loaded files to avoid re-loading
+            var loadedFiles = _loadedFilesCache.GetOrAdd(key, _ => new HashSet<string>());
+            if (!loadedFiles.Add(resourceFile))
+            {
+                // File already loaded for this key, skip
+                return;
+            }
+            
             if (!_resourcesCache.ContainsKey(key))
             {
                 var resources = JsonResourceLoader.Load(resourceFile);
