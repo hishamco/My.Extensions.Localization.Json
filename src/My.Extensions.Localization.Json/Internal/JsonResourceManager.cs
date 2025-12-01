@@ -42,6 +42,7 @@ public class JsonResourceManager
             var allResources = new ConcurrentDictionary<string, string>();
             do
             {
+                key = $"{ResourceName}.{culture.Name}";
                 if (_resourcesCache.TryGetValue(key, out var resources))
                 {
                     foreach (var entry in resources)
@@ -99,15 +100,21 @@ public class JsonResourceManager
             return null;
         }
 
-        var key = $"{ResourceName}.{culture.Name}";
-        if (!_resourcesCache.TryGetValue(key, out var resources))
+        do
         {
-            return null;
-        }
+            var key = $"{ResourceName}.{culture.Name}";
+            if (_resourcesCache.TryGetValue(key, out var resources))
+            {
+                if (resources.TryGetValue(name, out var value))
+                {
+                    return value.ToString();
+                }
+            }
 
-        return resources.TryGetValue(name, out var value)
-            ? value.ToString()
-            : null;
+            culture = culture.Parent;
+        } while (culture != culture.Parent);
+
+        return null;
     }
 
     private void TryLoadResourceSet(CultureInfo culture)
