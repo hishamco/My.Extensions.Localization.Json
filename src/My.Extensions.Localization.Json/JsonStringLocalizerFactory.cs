@@ -18,6 +18,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
     private readonly string _resourcesRelativePath;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
+    private readonly MissingLocalizationBehavior _missingLocalizationBehavior = MissingLocalizationBehavior.Ignore;
     private readonly ILoggerFactory _loggerFactory;
 
     public JsonStringLocalizerFactory(
@@ -28,6 +29,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 
         _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
         _resourcesType = localizationOptions.Value.ResourcesType;
+        _missingLocalizationBehavior = localizationOptions.Value.MissingLocalizationBehavior;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -95,7 +97,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             : new JsonResourceManager(resourcesPath);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
-        return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);
+        return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger, _missingLocalizationBehavior);
     }
 
     private string GetResourcePath(Assembly assembly)
