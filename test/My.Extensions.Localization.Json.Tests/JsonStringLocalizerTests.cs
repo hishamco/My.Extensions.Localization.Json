@@ -177,6 +177,52 @@ public class JsonStringLocalizerTests
         Assert.Equal(expected, translation);
     }
 
+    [Theory]
+    [InlineData("fr-FR", "Yes", "Oui")]  // "Yes" only exists in fr.json, should fallback from fr-FR to fr
+    [InlineData("fr-FR", "Hello", "Bonjour")]  // "Hello" exists in both, fr-FR should take precedence
+    public void GetTranslationWithParentCultureFallback_FallsBackToParentCulture(string culture, string name, string expected)
+    {
+        // Arrange
+        LocalizationHelper.SetCurrentCulture(culture);
+
+        // Act
+        string translation = _localizer[name];
+
+        // Assert
+        Assert.Equal(expected, translation);
+    }
+
+    [Theory]
+    [InlineData("fr-FR", "Yes", false)]  // "Yes" found in parent culture fr.json
+    [InlineData("fr-FR", "Hello", false)]  // "Hello" found in fr-FR.json
+    [InlineData("fr-FR", "NonExistentKey", true)]  // Key doesn't exist anywhere
+    public void GetTranslation_ResourceNotFound_ReturnsCorrectFlag(string culture, string name, bool expectedResourceNotFound)
+    {
+        // Arrange
+        LocalizationHelper.SetCurrentCulture(culture);
+
+        // Act
+        var localizedString = _localizer[name];
+
+        // Assert
+        Assert.Equal(expectedResourceNotFound, localizedString.ResourceNotFound);
+    }
+
+    [Theory]
+    [InlineData("fr-FR", "Yes")]  // "Yes" only exists in fr.json, should fallback
+    [InlineData("fr-FR", "Hello")]  // "Hello" exists in fr-FR.json
+    public void GetAllStrings_WithIncludeParentCultures_IncludesParentCultureStrings(string culture, string keyThatShouldExist)
+    {
+        // Arrange
+        LocalizationHelper.SetCurrentCulture(culture);
+
+        // Act
+        var localizedStrings = _localizer.GetAllStrings(includeParentCultures: true);
+
+        // Assert
+        Assert.Contains(localizedStrings, s => s.Name == keyThatShouldExist);
+    }
+
     private class SharedResource
     {
         public string Hello { get; set; }
