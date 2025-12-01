@@ -18,6 +18,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
     private readonly string _resourcesRelativePath;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
+    private readonly bool _fallBackToParentUICultures = true;
     private readonly ILoggerFactory _loggerFactory;
 
     public JsonStringLocalizerFactory(
@@ -28,6 +29,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 
         _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
         _resourcesType = localizationOptions.Value.ResourcesType;
+        _fallBackToParentUICultures = localizationOptions.Value.FallBackToParentUICultures;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -91,8 +93,8 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         string resourceName)
     {
         var resourceManager = _resourcesType == ResourcesType.TypeBased
-            ? new JsonResourceManager(resourcesPath, resourceName)
-            : new JsonResourceManager(resourcesPath);
+            ? new JsonResourceManager(resourcesPath, resourceName, _fallBackToParentUICultures)
+            : new JsonResourceManager(resourcesPath, null, _fallBackToParentUICultures);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
         return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);

@@ -177,6 +177,63 @@ public class JsonStringLocalizerTests
         Assert.Equal(expected, translation);
     }
 
+    [Fact]
+    public void GetTranslation_WithFallBackToParentUICulturesDisabled_DoesNotFallbackToParentCulture()
+    {
+        // Arrange
+        var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
+        localizationOptions.Setup(o => o.Value)
+            .Returns(() => new JsonLocalizationOptions 
+            { 
+                ResourcesPath = "Resources",
+                FallBackToParentUICultures = false
+            });
+        var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
+        var localizer = localizerFactory.Create(basename, location);
+        
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Act
+        // "Yes" exists only in Test.fr.json (parent culture), not in Test.fr-FR.json
+        var translation = localizer["Yes"];
+
+        // Assert
+        // When FallBackToParentUICultures is disabled, it should not find "Yes" in fr-FR
+        // and return the key itself as the translation was not found
+        Assert.Equal("Yes", translation.Value);
+        Assert.True(translation.ResourceNotFound);
+    }
+
+    [Fact]
+    public void GetTranslation_WithFallBackToParentUICulturesEnabled_FallsBackToParentCulture()
+    {
+        // Arrange
+        var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
+        localizationOptions.Setup(o => o.Value)
+            .Returns(() => new JsonLocalizationOptions 
+            { 
+                ResourcesPath = "Resources",
+                FallBackToParentUICultures = true
+            });
+        var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
+        var localizer = localizerFactory.Create(basename, location);
+        
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Act
+        // "Yes" exists only in Test.fr.json (parent culture), not in Test.fr-FR.json
+        var translation = localizer["Yes"];
+
+        // Assert
+        // When FallBackToParentUICultures is enabled (default), it should find "Yes" in fr (parent)
+        Assert.Equal("Oui", translation.Value);
+        Assert.False(translation.ResourceNotFound);
+    }
+
     private class SharedResource
     {
         public string Hello { get; set; }
