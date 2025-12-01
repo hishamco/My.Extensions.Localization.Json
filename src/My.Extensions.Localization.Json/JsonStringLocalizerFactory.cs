@@ -18,6 +18,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
     private readonly string _resourcesRelativePath;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
+    private readonly bool _useGenericResources;
     private readonly ILoggerFactory _loggerFactory;
 
     public JsonStringLocalizerFactory(
@@ -28,6 +29,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 
         _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
         _resourcesType = localizationOptions.Value.ResourcesType;
+        _useGenericResources = localizationOptions.Value.UseGenericResources;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -52,8 +54,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             ? typeInfo.Name
             : TrimPrefix(typeInfo.FullName, assemblyName + ".");
 
-        resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
         typeName = TryFixInnerClassPath(typeName);
+        typeName = TryStripGenericTypeMarkers(typeName);
+
+        resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
 
         return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(resourcesPath, typeName));
     }
@@ -79,6 +83,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             if (_resourcesType == ResourcesType.TypeBased)
             {
                 baseName = TryFixInnerClassPath(baseName);
+                baseName = TryStripGenericTypeMarkers(baseName);
                 resourceName = TrimPrefix(baseName, location + ".");
             }
 
@@ -128,5 +133,21 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         }
 
         return fixedPath;
+    }
+
+    private string TryStripGenericTypeMarkers(string typeName)
+    {
+        if (_useGenericResources)
+        {
+            return typeName;
+        }
+
+        var backtickIndex = typeName.IndexOf('`');
+        if (backtickIndex >= 0)
+        {
+            return typeName.Substring(0, backtickIndex);
+        }
+
+        return typeName;
     }
 }
