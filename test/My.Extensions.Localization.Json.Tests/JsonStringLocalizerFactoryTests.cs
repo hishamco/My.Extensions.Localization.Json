@@ -112,11 +112,48 @@ public class JsonStringLocalizerFactoryTests
         var response = await client.GetAsync("/");
     }
 
-    private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
+    [Fact]
+    public void CreateLocalizerForGenericType_WithUseGenericResourcesFalse_StripsGenericMarkers()
+    {
+        SetupLocalizationOptions("Resources", ResourcesType.TypeBased, useGenericResources: false);
+        LocalizationHelper.SetCurrentCulture("fr");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act - Create localizer for a generic type
+        var localizer = localizerFactory.Create(typeof(GenericTest<string>));
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour Générique", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerForGenericType_WithUseGenericResourcesTrue_UsesFullTypeName()
+    {
+        SetupLocalizationOptions("Resources", ResourcesType.TypeBased, useGenericResources: true);
+        LocalizationHelper.SetCurrentCulture("fr");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act - Create localizer for a generic type (with default UseGenericResources = true, 
+        // the resource name includes generic markers, so it won't find the resource file)
+        var localizer = localizerFactory.Create(typeof(GenericTest<string>));
+
+        // Assert - Resource not found because the file is named GenericTest.fr.json, not GenericTest`1[[...]]
+        Assert.NotNull(localizer);
+        var result = localizer["Hello"];
+        Assert.True(result.ResourceNotFound);
+    }
+
+    private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased, bool useGenericResources = true)
         => _localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions {
                 ResourcesPath = resourcesPath,
-                ResourcesType = resourcesType
+                ResourcesType = resourcesType,
+                UseGenericResources = useGenericResources
             });
 
     public class InnerClassStartup
