@@ -65,7 +65,7 @@ public class JsonStringLocalizer : IStringLocalizer
         _missingLocalizationBehavior = missingLocalizationBehavior;
     }
 
-    [Obsolete("This constructor has been deprected and will be removed in the upcoming major release.")]
+    [Obsolete("This constructor has been deprecated and will be removed in the upcoming major release.")]
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
