@@ -28,7 +28,7 @@ namespace LocalizationSample.Blazor.Server
         public void ConfigureServices(IServiceCollection services)
         {
             CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("fr-FR");
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSingleton<WeatherForecastService>();

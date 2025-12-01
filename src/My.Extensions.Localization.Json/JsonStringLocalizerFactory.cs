@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,8 +17,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 {
     private readonly IResourceNamesCache _resourceNamesCache = new ResourceNamesCache();
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
-    private readonly string _resourcesRelativePath;
-    private readonly IList<string> _additionalResourcesPaths;
+    private readonly string[] _resourcesPaths;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
     private readonly ILoggerFactory _loggerFactory;
 
@@ -29,8 +27,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         ArgumentNullException.ThrowIfNull(localizationOptions);
 
-        _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
-        _additionalResourcesPaths = localizationOptions.Value.AdditionalResourcesPaths ?? new List<string>();
+        _resourcesPaths = localizationOptions.Value.ResourcesPath ?? Array.Empty<string>();
         _resourcesType = localizationOptions.Value.ResourcesType;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
@@ -39,14 +36,12 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         ArgumentNullException.ThrowIfNull(resourceSource);
 
-        string resourcesPath = string.Empty;
-
         // TODO: Check why an exception happen before the host build
         if (resourceSource.Name == "Controller")
         {
-            resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(resourceSource.Assembly));
+            var resourcesPaths = GetResourcePaths(resourceSource.Assembly);
             
-            return _localizerCache.GetOrAdd(resourceSource.Name, _ => CreateJsonStringLocalizer(resourcesPath, TryFixInnerClassPath("Controller")));
+            return _localizerCache.GetOrAdd(resourceSource.Name, _ => CreateJsonStringLocalizer(resourcesPaths, TryFixInnerClassPath("Controller")));
         }
 
         var typeInfo = resourceSource.GetTypeInfo();
@@ -56,10 +51,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             ? typeInfo.Name
             : TrimPrefix(typeInfo.FullName, rootNamespace + ".");
 
-        resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
+        var paths = GetResourcePaths(assembly);
         typeName = TryFixInnerClassPath(typeName);
 
-        return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(resourcesPath, typeName));
+        return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(paths, typeName));
     }
 
     public IStringLocalizer Create(string baseName, string location)
@@ -71,13 +66,13 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         {
             var assemblyName = new AssemblyName(location);
             var assembly = Assembly.Load(assemblyName);
-            var resourcesPath = Path.Combine(PathHelpers.GetApplicationRoot(), GetResourcePath(assembly));
+            var resourcesPaths = GetResourcePaths(assembly);
             string resourceName = null;
             if (baseName == string.Empty)
             {
                 resourceName = baseName;
 
-                return CreateJsonStringLocalizer(resourcesPath, resourceName);
+                return CreateJsonStringLocalizer(resourcesPaths, resourceName);
             }
 
             if (_resourcesType == ResourcesType.TypeBased)
@@ -87,33 +82,34 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
                 resourceName = TrimPrefix(baseName, rootNamespace + ".");
             }
 
-            return CreateJsonStringLocalizer(resourcesPath, resourceName);
+            return CreateJsonStringLocalizer(resourcesPaths, resourceName);
         });
     }
 
     protected virtual JsonStringLocalizer CreateJsonStringLocalizer(
-        string resourcesPath,
+        string[] resourcesPaths,
         string resourceName)
     {
-        var additionalResourcesPaths = _additionalResourcesPaths
-            .Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))
-            .ToArray();
-        
         var resourceManager = _resourcesType == ResourcesType.TypeBased
-            ? new JsonResourceManager(resourcesPath, resourceName, additionalResourcesPaths)
-            : new JsonResourceManager(resourcesPath, additionalResourcesPaths);
+            ? new JsonResourceManager(resourcesPaths, resourceName)
+            : new JsonResourceManager(resourcesPaths);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
         return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);
     }
 
-    private string GetResourcePath(Assembly assembly)
+    private string[] GetResourcePaths(Assembly assembly)
     {
         var resourceLocationAttribute = assembly.GetCustomAttribute<ResourceLocationAttribute>();
+        
+        if (resourceLocationAttribute != null)
+        {
+            return new[] { Path.Combine(PathHelpers.GetApplicationRoot(), resourceLocationAttribute.ResourceLocation) };
+        }
 
-        return resourceLocationAttribute == null
-            ? _resourcesRelativePath
-            : resourceLocationAttribute.ResourceLocation;
+        return _resourcesPaths
+            .Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))
+            .ToArray();
     }
 
     private static string GetRootNamespace(Assembly assembly)

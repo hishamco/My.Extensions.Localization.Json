@@ -88,7 +88,7 @@ public class JsonStringLocalizerFactoryTests
         var webHostBuilder = new WebHostBuilder()
             .ConfigureServices(services =>
             {
-                services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+                services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
             })
             .Configure(app =>
             {
@@ -186,7 +186,7 @@ public class JsonStringLocalizerFactoryTests
     private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
         => _localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions {
-                ResourcesPath = resourcesPath,
+                ResourcesPath = new[] { resourcesPath },
                 ResourcesType = resourcesType
             });
 
@@ -196,7 +196,7 @@ public class JsonStringLocalizerFactoryTests
         {
             services.AddMvc();
             services.AddLocalization();
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
         }
 
         public void Configure(IApplicationBuilder app, IStringLocalizer<Model> localizer)
