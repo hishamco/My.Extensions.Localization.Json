@@ -7,18 +7,17 @@ using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
 
-public class AdditionalResourcesPathsTests
+public class MultipleResourcesPathsTests
 {
     [Fact]
-    public void LocalizerReturnsTranslationFromPrimaryPath()
+    public void LocalizerReturnsTranslationFromFirstPath()
     {
         // Arrange
         var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
-                AdditionalResourcesPaths = { "AdditionalResources" }
+                ResourcesPath = new[] { "Resources", "AdditionalResources" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -35,15 +34,14 @@ public class AdditionalResourcesPathsTests
     }
 
     [Fact]
-    public void LocalizerReturnsTranslationFromAdditionalPath()
+    public void LocalizerReturnsTranslationFromSecondPath()
     {
         // Arrange
         var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
-                AdditionalResourcesPaths = { "AdditionalResources" }
+                ResourcesPath = new[] { "Resources", "AdditionalResources" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -67,8 +65,7 @@ public class AdditionalResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
-                AdditionalResourcesPaths = { "AdditionalResources" }
+                ResourcesPath = new[] { "Resources", "AdditionalResources" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -77,25 +74,24 @@ public class AdditionalResourcesPathsTests
 
         LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        // Act & Assert - key from primary
-        var translationFromPrimary = localizer["Hello"];
-        Assert.Equal("Bonjour", translationFromPrimary);
+        // Act & Assert - key from first path
+        var translationFromFirst = localizer["Hello"];
+        Assert.Equal("Bonjour", translationFromFirst);
 
-        // Act & Assert - key from additional
-        var translationFromAdditional = localizer["AdditionalKey"];
-        Assert.Equal("Clé supplémentaire", translationFromAdditional);
+        // Act & Assert - key from second path
+        var translationFromSecond = localizer["AdditionalKey"];
+        Assert.Equal("Clé supplémentaire", translationFromSecond);
     }
 
     [Fact]
-    public void LocalizerPrimaryPathTakesPrecedence()
+    public void LocalizerFirstPathTakesPrecedence()
     {
         // Arrange
         var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
-                AdditionalResourcesPaths = { "AdditionalResources" }
+                ResourcesPath = new[] { "Resources", "AdditionalResources" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -104,23 +100,22 @@ public class AdditionalResourcesPathsTests
 
         LocalizationHelper.SetCurrentCulture("fr-FR");
 
-        // Act - Hello exists in both primary and additional paths
+        // Act - Hello exists in both paths
         var translation = localizer["Hello"];
 
-        // Assert - Primary path value should win
+        // Assert - First path value should win
         Assert.Equal("Bonjour", translation);
     }
 
     [Fact]
-    public void LocalizerWorksWithNoAdditionalPaths()
+    public void LocalizerWorksWithSinglePath()
     {
         // Arrange
         var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources"
-                // AdditionalResourcesPaths not specified, should use empty list
+                ResourcesPath = new[] { "Resources" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -137,15 +132,14 @@ public class AdditionalResourcesPathsTests
     }
 
     [Fact]
-    public void LocalizerWorksWithMultipleAdditionalPaths()
+    public void LocalizerWorksWithMultiplePathsIncludingNonExistent()
     {
         // Arrange
         var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
-                AdditionalResourcesPaths = { "AdditionalResources", "NonExistentPath" }
+                ResourcesPath = new[] { "Resources", "AdditionalResources", "NonExistentPath" }
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -155,11 +149,11 @@ public class AdditionalResourcesPathsTests
         LocalizationHelper.SetCurrentCulture("fr-FR");
 
         // Act
-        var translationFromPrimary = localizer["Hello"];
-        var translationFromAdditional = localizer["AdditionalKey"];
+        var translationFromFirst = localizer["Hello"];
+        var translationFromSecond = localizer["AdditionalKey"];
 
         // Assert
-        Assert.Equal("Bonjour", translationFromPrimary);
-        Assert.Equal("Clé supplémentaire", translationFromAdditional);
+        Assert.Equal("Bonjour", translationFromFirst);
+        Assert.Equal("Clé supplémentaire", translationFromSecond);
     }
 }

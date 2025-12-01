@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Microsoft.Extensions.Localization;
 
 namespace My.Extensions.Localization.Json;
@@ -7,5 +7,5 @@ public class JsonLocalizationOptions : LocalizationOptions
 {
     public ResourcesType ResourcesType { get; set; } = ResourcesType.TypeBased;
 
-    public IList<string> AdditionalResourcesPaths { get; set; } = new List<string>();
+    public new string[] ResourcesPath { get; set; } = Array.Empty<string>();
 }

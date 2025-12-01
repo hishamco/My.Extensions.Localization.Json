@@ -31,7 +31,7 @@ public class JsonLocalizationServiceCollectionExtensionsTests
 
         // Act
         JsonLocalizationServiceCollectionExtensions.AddJsonLocalization(services,
-            options => options.ResourcesPath = "Resources");
+            options => options.ResourcesPath = new[] { "Resources" });
 
         var localizationConfigureOptions = (ConfigureNamedOptions<JsonLocalizationOptions>)services
             .SingleOrDefault(sd => sd.ServiceType == typeof(IConfigureOptions<JsonLocalizationOptions>))
@@ -44,6 +44,6 @@ public class JsonLocalizationServiceCollectionExtensionsTests
 
         localizationConfigureOptions.Action.Invoke(localizationOptions);
 
-        Assert.Equal("Resources", localizationOptions.ResourcesPath);
+        Assert.Equal(new[] { "Resources" }, localizationOptions.ResourcesPath);
     }
 }

@@ -14,30 +14,25 @@ public class JsonResourceManager
     private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
 
-    public JsonResourceManager(string resourcesPath, string resourceName = null, params string[] additionalResourcesPaths)
+    public JsonResourceManager(string[] resourcesPaths, string resourceName = null)
     {
-        ResourcesPath = resourcesPath;
+        ResourcesPaths = resourcesPaths ?? Array.Empty<string>();
         ResourceName = resourceName;
-        AdditionalResourcesPaths = additionalResourcesPaths ?? Array.Empty<string>();
         
-        SetupFileWatcher(resourcesPath);
-        
-        foreach (var additionalPath in AdditionalResourcesPaths)
+        foreach (var path in ResourcesPaths)
         {
-            SetupFileWatcher(additionalPath);
+            SetupFileWatcher(path);
         }
     }
 
-    public JsonResourceManager(string resourcesPath, params string[] additionalResourcesPaths)
-        : this(resourcesPath, null, additionalResourcesPaths)
+    public JsonResourceManager(string[] resourcesPaths)
+        : this(resourcesPaths, null)
     {
     }
 
     public string ResourceName { get; }
 
-    public string ResourcesPath { get; }
-
-    public string[] AdditionalResourcesPaths { get; }
+    public string[] ResourcesPaths { get; }
 
     public string ResourcesFilePath { get; private set; }
 
@@ -126,13 +121,10 @@ public class JsonResourceManager
 
     private void TryLoadResourceSet(CultureInfo culture)
     {
-        // Load from primary resources path
-        TryLoadResourceSetFromPath(ResourcesPath, culture);
-        
-        // Load from additional resources paths (merging resources)
-        foreach (var additionalPath in AdditionalResourcesPaths)
+        // Load from all resources paths (merging resources, first path takes precedence)
+        foreach (var path in ResourcesPaths)
         {
-            TryLoadResourceSetFromPath(additionalPath, culture);
+            TryLoadResourceSetFromPath(path, culture);
         }
     }
 
