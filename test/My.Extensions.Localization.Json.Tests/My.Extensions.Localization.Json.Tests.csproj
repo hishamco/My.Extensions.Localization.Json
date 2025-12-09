@@ -18,6 +18,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\My.Extensions.Localization.Json\My.Extensions.Localization.Json.csproj" />
+    <ProjectReference Include="..\ResourcesClassLibraryNoAttribute\ResourcesClassLibraryNoAttribute.csproj" />
+    <ProjectReference Include="..\ResourcesClassLibraryWithAttribute\ResourcesClassLibraryWithAttribute.csproj" />
   </ItemGroup>
 
   <ItemGroup>

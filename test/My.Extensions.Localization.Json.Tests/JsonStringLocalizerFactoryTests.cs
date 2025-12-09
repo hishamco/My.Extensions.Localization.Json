@@ -152,47 +152,87 @@ public class JsonStringLocalizerFactoryTests
     }
 
     [Fact]
-    public void CreateLocalizerWithType_UsesRootNamespaceFromAttribute()
+    public void CreateLocalizerWithType_WithoutRootNamespaceAttribute_UsesAssemblyName()
     {
-        // This test verifies that the factory uses RootNamespaceAttribute when present.
-        // The Test class is in the My.Extensions.Localization.Json.Tests assembly with
-        // namespace My.Extensions.Localization.Json.Tests.Common
-        // Since the assembly doesn't have RootNamespaceAttribute, it should fall back
-        // to using the assembly name, which is the expected behavior.
+        // This test verifies that when RootNamespaceAttribute is NOT present,
+        // the factory falls back to using the assembly name.
+        // ResourcesClassLibraryNoAttribute does not have RootNamespaceAttribute,
+        // so assembly name equals root namespace.
         SetupLocalizationOptions("Resources");
-        LocalizationHelper.SetCurrentCulture("fr-FR");
+        LocalizationHelper.SetCurrentCulture("en");
 
         // Arrange
         var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
 
         // Act
-        var localizer = localizerFactory.Create(typeof(Test));
+        var localizer = localizerFactory.Create(typeof(ResourcesClassLibraryNoAttribute.TestModel));
 
         // Assert
         Assert.NotNull(localizer);
-        // The localizer should find the resource at Resources/Common/Test.fr-FR.json
-        // because the type name is trimmed using the assembly name (which equals root namespace when not specified)
-        Assert.Equal("Bonjour", localizer["Hello"]);
+        // Should find resource at Resources/TestModel.en.json using assembly name as root namespace
+        Assert.Equal("Hello from NoAttribute", localizer["Hello"]);
     }
 
     [Fact]
-    public void CreateLocalizerWithBasenameAndLocation_UsesRootNamespaceFromAttribute()
+    public void CreateLocalizerWithType_WithRootNamespaceAttribute_UsesRootNamespace()
     {
-        // This test verifies that the factory uses RootNamespaceAttribute when present
-        // for the Create(baseName, location) overload.
+        // This test verifies that when RootNamespaceAttribute IS present,
+        // the factory uses the root namespace from the attribute.
+        // ResourcesClassLibraryWithAttribute has [assembly: RootNamespace("MyCustomNamespace")]
+        // where assembly name is "ResourcesClassLibraryWithAttribute"
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("en");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act
+        var localizer = localizerFactory.Create(typeof(MyCustomNamespace.TestModel));
+
+        // Assert
+        Assert.NotNull(localizer);
+        // Should find resource at Resources/TestModel.en.json using root namespace "MyCustomNamespace"
+        Assert.Equal("Hello from WithAttribute", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithBasenameAndLocation_WithoutRootNamespaceAttribute()
+    {
+        // This test verifies Create(baseName, location) without RootNamespaceAttribute
         SetupLocalizationOptions("Resources");
         LocalizationHelper.SetCurrentCulture("fr-FR");
 
         // Arrange
         var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
-        var location = "My.Extensions.Localization.Json.Tests";
-        var basename = $"{location}.Common.{nameof(Test)}";
+        var location = "ResourcesClassLibraryNoAttribute";
+        var basename = $"{location}.TestModel";
 
         // Act
         var localizer = localizerFactory.Create(basename, location);
 
         // Assert
         Assert.NotNull(localizer);
-        Assert.Equal("Bonjour", localizer["Hello"]);
+        Assert.Equal("Bonjour from NoAttribute", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithBasenameAndLocation_WithRootNamespaceAttribute()
+    {
+        // This test verifies Create(baseName, location) with RootNamespaceAttribute
+        // The basename should use the root namespace, not the assembly name
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        var location = "ResourcesClassLibraryWithAttribute";
+        var basename = $"MyCustomNamespace.TestModel";
+
+        // Act
+        var localizer = localizerFactory.Create(basename, location);
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour from WithAttribute", localizer["Hello"]);
     }
 }
