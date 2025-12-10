@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -127,35 +127,32 @@ public class JsonStringLocalizerTests
     }
 
     [Fact]
-    public async void CultureBasedResourcesUsesIStringLocalizer()
+    public async Task CultureBasedResourcesUsesIStringLocalizer()
     {
-        var webHostBuilder = new WebHostBuilder()
-            .ConfigureServices(services =>
-            {
-                services.AddJsonLocalization(options =>
-                {
-                    options.ResourcesPath = ["Resources"];
-                    options.ResourcesType = ResourcesType.CultureBased;
-                });
-            })
-            .Configure(app =>
-            {
-                app.UseRequestLocalization("en-US", "fr-FR");
+        var builder = WebApplication.CreateBuilder();
+        
+        builder.Services.AddJsonLocalization(options =>
+        {
+            options.ResourcesPath = ["Resources"];
+            options.ResourcesType = ResourcesType.CultureBased;
+        });
 
-                app.Run(async context =>
-                {
-                    var localizer = context.RequestServices.GetService<IStringLocalizer<JsonStringLocalizer>>();
+        builder.WebHost.UseTestServer();
 
-                    LocalizationHelper.SetCurrentCulture("fr-FR");
+        await using var app = builder.Build();
+        
+        app.UseRequestLocalization("en-US", "fr-FR");
 
-                    Assert.Equal("Bonjour", localizer["Hello"]);
+        app.MapGet("/", async (IStringLocalizer<JsonStringLocalizer> localizer) =>
+        {
+            LocalizationHelper.SetCurrentCulture("fr-FR");
+            Assert.Equal("Bonjour", localizer["Hello"]);
+            return "OK";
+        });
 
-                    await Task.CompletedTask;
-                });
-            });
+        await app.StartAsync();
 
-        using var server = new TestServer(webHostBuilder);
-        var client = server.CreateClient();
+        var client = app.GetTestClient();
         var response = await client.GetAsync("/");
     }
 
