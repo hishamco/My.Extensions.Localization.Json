@@ -9,15 +9,20 @@ namespace My.Extensions.Localization.Json.Internal;
 
 public class JsonResourceManager
 {
-    private readonly List<JsonFileWatcher> _jsonFileWatchers = new();
+    private readonly List<JsonFileWatcher> _jsonFileWatchers = [];
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
     private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
+    public JsonResourceManager(string resourcesPath, string resourceName = null)
+        : this([resourcesPath], fallBackToParentUICultures: true, resourceName)
+    {
+    }
 
-    public JsonResourceManager(string[] resourcesPaths, string resourceName = null)
+    public JsonResourceManager(string[] resourcesPaths, bool fallBackToParentUICultures, string resourceName = null)
     {
         ResourcesPaths = resourcesPaths ?? Array.Empty<string>();
         ResourceName = resourceName;
+        FallBackToParentUICultures = fallBackToParentUICultures;
         
         foreach (var path in ResourcesPaths)
         {
@@ -25,8 +30,8 @@ public class JsonResourceManager
         }
     }
 
-    public JsonResourceManager(string[] resourcesPaths)
-        : this(resourcesPaths, null)
+    public JsonResourceManager(string[] resourcesPaths, string resourceName = null)
+        : this(resourcesPaths, fallBackToParentUICultures: true, resourceName)
     {
     }
 
@@ -35,6 +40,12 @@ public class JsonResourceManager
     public string[] ResourcesPaths { get; }
 
     public string ResourcesFilePath { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether to fall back to parent UI cultures
+    /// when a localized string is not found for the current culture.
+    /// </summary>
+    public bool FallBackToParentUICultures { get; }
 
     public virtual ConcurrentDictionary<string, string> GetResourceSet(CultureInfo culture, bool tryParents)
     {
@@ -51,6 +62,7 @@ public class JsonResourceManager
             var allResources = new ConcurrentDictionary<string, string>();
             do
             {
+                key = $"{ResourceName}.{culture.Name}";
                 if (_resourcesCache.TryGetValue(key, out var resources))
                 {
                     foreach (var entry in resources)
@@ -75,7 +87,7 @@ public class JsonResourceManager
     public virtual string GetString(string name)
     {
         var culture = CultureInfo.CurrentUICulture;
-        GetResourceSet(culture, tryParents: true);
+        GetResourceSet(culture, tryParents: FallBackToParentUICultures);
 
         if (_resourcesCache.IsEmpty)
         {
@@ -93,6 +105,11 @@ public class JsonResourceManager
                 }
             }
 
+            if (!FallBackToParentUICultures)
+            {
+                break;
+            }
+
             culture = culture.Parent;
         } while (culture != culture.Parent);
 
@@ -101,22 +118,34 @@ public class JsonResourceManager
 
     public virtual string GetString(string name, CultureInfo culture)
     {
-        GetResourceSet(culture, tryParents: true);
+        GetResourceSet(culture, tryParents: FallBackToParentUICultures);
 
         if (_resourcesCache.IsEmpty)
         {
             return null;
         }
 
-        var key = $"{ResourceName}.{culture.Name}";
-        if (!_resourcesCache.TryGetValue(key, out var resources))
+        var currentCulture = culture;
+        do
         {
-            return null;
-        }
+            var key = $"{ResourceName}.{currentCulture.Name}";
+            if (_resourcesCache.TryGetValue(key, out var resources))
+            {
+                if (resources.TryGetValue(name, out var value))
+                {
+                    return value.ToString();
+                }
+            }
 
-        return resources.TryGetValue(name, out var value)
-            ? value.ToString()
-            : null;
+            if (!FallBackToParentUICultures)
+            {
+                break;
+            }
+
+            currentCulture = currentCulture.Parent;
+        } while (currentCulture != currentCulture.Parent);
+
+        return null;
     }
 
     private void TryLoadResourceSet(CultureInfo culture)

@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,16 +20,26 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     private readonly ConcurrentDictionary<string, JsonStringLocalizer> _localizerCache = new();
     private readonly string[] _resourcesPaths;
     private readonly ResourcesType _resourcesType = ResourcesType.TypeBased;
+    private readonly bool _fallBackToParentUICultures = true;
     private readonly ILoggerFactory _loggerFactory;
 
     public JsonStringLocalizerFactory(
         IOptions<JsonLocalizationOptions> localizationOptions,
         ILoggerFactory loggerFactory)
+        : this(localizationOptions, loggerFactory, null)
+    {
+    }
+
+    public JsonStringLocalizerFactory(
+        IOptions<JsonLocalizationOptions> localizationOptions,
+        ILoggerFactory loggerFactory,
+        IOptions<RequestLocalizationOptions> requestLocalizationOptions)
     {
         ArgumentNullException.ThrowIfNull(localizationOptions);
 
-        _resourcesPaths = localizationOptions.Value.ResourcesPath ?? Array.Empty<string>();
+        _resourcesPaths = localizationOptions.Value.ResourcesPath ?? [];
         _resourcesType = localizationOptions.Value.ResourcesType;
+        _fallBackToParentUICultures = requestLocalizationOptions?.Value?.FallBackToParentUICultures ?? true;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
@@ -116,8 +127,8 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         string resourceName)
     {
         var resourceManager = _resourcesType == ResourcesType.TypeBased
-            ? new JsonResourceManager(resourcesPaths, resourceName)
-            : new JsonResourceManager(resourcesPaths);
+            ? new JsonResourceManager(resourcesPaths, _fallBackToParentUICultures, resourceName)
+            : new JsonResourceManager(resourcesPaths, _fallBackToParentUICultures, null);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
         return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger);
@@ -129,12 +140,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         
         if (resourceLocationAttribute != null)
         {
-            return new[] { Path.Combine(PathHelpers.GetApplicationRoot(), resourceLocationAttribute.ResourceLocation) };
+            return [Path.Combine(PathHelpers.GetApplicationRoot(), resourceLocationAttribute.ResourceLocation)];
         }
 
-        return _resourcesPaths
-            .Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))
-            .ToArray();
+        return [.. _resourcesPaths.Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))];
     }
 
     private static string GetRootNamespace(Assembly assembly)
