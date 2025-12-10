@@ -18,6 +18,7 @@ public class JsonStringLocalizer : IStringLocalizer
     private readonly JsonResourceManager _jsonResourceManager;
     private readonly IResourceStringProvider _resourceStringProvider;
     private readonly ILogger _logger;
+    private readonly MissingLocalizationBehavior _missingLocalizationBehavior;
 
     private string _searchedLocation = string.Empty;
 
@@ -27,7 +28,20 @@ public class JsonStringLocalizer : IStringLocalizer
         ILogger logger)
         : this(jsonResourceManager,
             new JsonStringProvider(resourceNamesCache, jsonResourceManager),
-            logger)
+            logger,
+            MissingLocalizationBehavior.Ignore)
+    {
+    }
+
+    public JsonStringLocalizer(
+        JsonResourceManager jsonResourceManager,
+        IResourceNamesCache resourceNamesCache,
+        ILogger logger,
+        MissingLocalizationBehavior missingLocalizationBehavior)
+        : this(jsonResourceManager,
+            new JsonStringProvider(resourceNamesCache, jsonResourceManager),
+            logger,
+            missingLocalizationBehavior)
     {
     }
 
@@ -35,13 +49,23 @@ public class JsonStringLocalizer : IStringLocalizer
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
         ILogger logger)
+        : this(jsonResourceManager, resourceStringProvider, logger, MissingLocalizationBehavior.Ignore)
+    {
+    }
+
+    public JsonStringLocalizer(
+        JsonResourceManager jsonResourceManager,
+        IResourceStringProvider resourceStringProvider,
+        ILogger logger,
+        MissingLocalizationBehavior missingLocalizationBehavior)
     {
         _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
         _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _missingLocalizationBehavior = missingLocalizationBehavior;
     }
 
-    [Obsolete("This constructor has been deprected and will be removed in the upcoming major release.")]
+    [Obsolete("This constructor has been deprecated and will be removed in the upcoming major release.")]
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
@@ -51,6 +75,7 @@ public class JsonStringLocalizer : IStringLocalizer
         _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
         _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _missingLocalizationBehavior = MissingLocalizationBehavior.Ignore;
     }
 
     public LocalizedString this[string name]
@@ -107,20 +132,45 @@ public class JsonStringLocalizer : IStringLocalizer
 
         if (_missingManifestCache.ContainsKey(cacheKey))
         {
+            HandleMissingLocalization(name, keyCulture);
             return null;
         }
 
         try
         {
-            return culture == null
+            var value = culture == null
                 ? _jsonResourceManager.GetString(name)
                 : _jsonResourceManager.GetString(name, culture);
+
+            if (value == null)
+            {
+                _missingManifestCache.TryAdd(cacheKey, null);
+                HandleMissingLocalization(name, keyCulture);
+            }
+
+            return value;
         }
         catch (MissingManifestResourceException)
         {
             _missingManifestCache.TryAdd(cacheKey, null);
+            HandleMissingLocalization(name, keyCulture);
             
             return null;
+        }
+    }
+
+    private void HandleMissingLocalization(string name, CultureInfo culture)
+    {
+        switch (_missingLocalizationBehavior)
+        {
+            case MissingLocalizationBehavior.LogWarning:
+                _logger.MissingLocalization(name, _jsonResourceManager.ResourcesFilePath, culture);
+                break;
+            case MissingLocalizationBehavior.ThrowException:
+                throw new MissingLocalizationException(name, culture.Name, _jsonResourceManager.ResourcesFilePath);
+            case MissingLocalizationBehavior.Ignore:
+            default:
+                break;
         }
     }
 
