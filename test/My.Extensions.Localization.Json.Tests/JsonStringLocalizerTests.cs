@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +7,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using My.Extensions.Localization.Json.Tests.Common;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
@@ -22,7 +21,7 @@ public class JsonStringLocalizerTests
     {
         var _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         _localizationOptions.Setup(o => o.Value)
-            .Returns(() => new JsonLocalizationOptions { ResourcesPath = new[] { "Resources" } });
+            .Returns(() => new JsonLocalizationOptions { ResourcesPath = ["Resources"] });
         var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
         var basename = $"{location}.Common.{nameof(Test)}";
@@ -135,7 +134,7 @@ public class JsonStringLocalizerTests
             {
                 services.AddJsonLocalization(options =>
                 {
-                    options.ResourcesPath = new[] { "Resources" };
+                    options.ResourcesPath = ["Resources"];
                     options.ResourcesType = ResourcesType.CultureBased;
                 });
             })
@@ -185,7 +184,7 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = new[] { "Resources" }
+                ResourcesPath = ["Resources"]
             });
         
         var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
@@ -224,7 +223,7 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = new[] { "Resources" }
+                ResourcesPath = ["Resources"]
             });
         
         var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();

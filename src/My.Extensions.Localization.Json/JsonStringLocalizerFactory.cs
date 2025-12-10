@@ -37,7 +37,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     {
         ArgumentNullException.ThrowIfNull(localizationOptions);
 
-        _resourcesPaths = localizationOptions.Value.ResourcesPath ?? Array.Empty<string>();
+        _resourcesPaths = localizationOptions.Value.ResourcesPath ?? [];
         _resourcesType = localizationOptions.Value.ResourcesType;
         _fallBackToParentUICultures = requestLocalizationOptions?.Value?.FallBackToParentUICultures ?? true;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
@@ -115,12 +115,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         
         if (resourceLocationAttribute != null)
         {
-            return new[] { Path.Combine(PathHelpers.GetApplicationRoot(), resourceLocationAttribute.ResourceLocation) };
+            return [Path.Combine(PathHelpers.GetApplicationRoot(), resourceLocationAttribute.ResourceLocation)];
         }
 
-        return _resourcesPaths
-            .Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))
-            .ToArray();
+        return [.. _resourcesPaths.Select(p => Path.Combine(PathHelpers.GetApplicationRoot(), p))];
     }
 
     private static string GetRootNamespace(Assembly assembly)

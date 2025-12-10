@@ -9,12 +9,12 @@ namespace My.Extensions.Localization.Json.Internal;
 
 public class JsonResourceManager
 {
-    private readonly List<JsonFileWatcher> _jsonFileWatchers = new();
+    private readonly List<JsonFileWatcher> _jsonFileWatchers = [];
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
     private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
     public JsonResourceManager(string resourcesPath, string resourceName = null)
-        : this(new[] { resourcesPath }, fallBackToParentUICultures: true, resourceName)
+        : this([resourcesPath], fallBackToParentUICultures: true, resourceName)
     {
     }
 
