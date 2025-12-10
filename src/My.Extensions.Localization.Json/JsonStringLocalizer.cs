@@ -12,6 +12,10 @@ namespace My.Extensions.Localization.Json;
 
 using My.Extensions.Localization.Json.Caching;
 
+/// <summary>
+/// Provides string localization services using JSON-based resource files. Supports retrieving localized strings and
+/// formatting them for the current or specified culture.
+/// </summary>
 public class JsonStringLocalizer : IStringLocalizer
 {
     private readonly ConcurrentDictionary<string, object> _missingManifestCache = new();
@@ -21,6 +25,13 @@ public class JsonStringLocalizer : IStringLocalizer
 
     private string _searchedLocation = string.Empty;
 
+    /// <summary>
+    /// Initializes a new instance of the JsonStringLocalizer class using the specified resource manager, resource names
+    /// cache, and logger.
+    /// </summary>
+    /// <param name="jsonResourceManager">The resource manager that provides access to JSON-based localization resources.</param>
+    /// <param name="resourceNamesCache">The cache used to store and retrieve resource names for efficient localization lookups.</param>
+    /// <param name="logger">The logger used to record localization-related events and errors.</param>
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceNamesCache resourceNamesCache,
@@ -31,6 +42,15 @@ public class JsonStringLocalizer : IStringLocalizer
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the JsonStringLocalizer class using the specified resource manager, string
+    /// provider, and logger.
+    /// </summary>
+    /// <param name="jsonResourceManager">The resource manager that provides access to JSON-based localization resources.</param>
+    /// <param name="resourceStringProvider">The provider used to retrieve localized strings from resources.</param>
+    /// <param name="logger">The logger used to record localization-related events and errors.</param>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="jsonResourceManager"/>, <paramref name="resourceStringProvider"/>, or <paramref
+    /// name="logger"/> is null.</exception>
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
@@ -53,6 +73,7 @@ public class JsonStringLocalizer : IStringLocalizer
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    /// <inheritdoc/>
     public LocalizedString this[string name]
     {
         get
@@ -65,6 +86,7 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
+    /// <inheritdoc/>
     public LocalizedString this[string name, params object[] arguments]
     {
         get
@@ -78,9 +100,18 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
+    /// <inheritdoc/>
     public virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures) =>
         GetAllStrings(includeParentCultures, CultureInfo.CurrentUICulture);
 
+    /// <summary>
+    /// Returns all localized strings available for the specified culture, optionally including strings from parent
+    /// cultures.
+    /// </summary>
+    /// <param name="includeParentCultures">true to include localized strings from parent cultures in addition to the specified culture; otherwise, false.</param>
+    /// <param name="culture">The culture for which to retrieve localized strings. Cannot be null.</param>
+    /// <returns>An enumerable collection of LocalizedString objects representing all available localized strings for the
+    /// specified culture.</returns>
     protected virtual IEnumerable<LocalizedString> GetAllStrings(bool includeParentCultures, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(culture);
@@ -96,6 +127,14 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
+    /// <summary>
+    /// Retrieves the localized string resource for the specified name and culture, returning null if the resource is
+    /// missing or unavailable.
+    /// </summary>
+    /// <param name="name">The name of the string resource to retrieve. Cannot be null.</param>
+    /// <param name="culture">The culture for which to retrieve the resource. If null, the current UI culture is used.</param>
+    /// <returns>The localized string resource associated with the specified name and culture, or null if the resource is not
+    /// found.</returns>
     protected string GetStringSafely(string name, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(name);

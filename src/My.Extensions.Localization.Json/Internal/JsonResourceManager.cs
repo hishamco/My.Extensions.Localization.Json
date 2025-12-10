@@ -7,17 +7,35 @@ using System.Linq;
 
 namespace My.Extensions.Localization.Json.Internal;
 
+/// <summary>
+/// Provides access to localized string resources loaded from JSON files, supporting culture-specific lookups and
+/// optional fallback to parent UI cultures.
+/// </summary>
 public class JsonResourceManager
 {
     private readonly List<JsonFileWatcher> _jsonFileWatchers = [];
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
     private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
+    /// <summary>
+    /// Initializes a new instance of the JsonResourceManager class using the specified resource directory and optional
+    /// resource name.
+    /// </summary>
+    /// <param name="resourcesPath">The path to the directory containing the JSON resource files. Cannot be null or empty.</param>
+    /// <param name="resourceName">The name of the resource to load. If null, the default resource name is used.</param>
     public JsonResourceManager(string resourcesPath, string resourceName = null)
         : this([resourcesPath], fallBackToParentUICultures: true, resourceName)
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the JsonResourceManager class using the specified resource file paths and
+    /// configuration options.
+    /// </summary>
+    /// <param name="resourcesPaths">An array of file system paths to JSON resource files to be managed. If null, an empty array is used.</param>
+    /// <param name="fallBackToParentUICultures">Indicates whether resource lookups should fall back to parent UI cultures when a resource is not found for the
+    /// requested culture.</param>
+    /// <param name="resourceName">The name of the resource to be managed. If null, the manager will use the default resource name resolution.</param>
     public JsonResourceManager(string[] resourcesPaths, bool fallBackToParentUICultures, string resourceName = null)
     {
         ResourcesPaths = resourcesPaths ?? Array.Empty<string>();
@@ -30,15 +48,31 @@ public class JsonResourceManager
         }
     }
 
+    /// <summary>
+    /// Initializes a new instance of the JsonResourceManager class using the specified resource file paths and an
+    /// optional resource name.
+    /// </summary>
+    /// <param name="resourcesPaths">An array of file system paths to JSON resource files to be managed. Each path should point to a valid resource
+    /// file. Cannot be null.</param>
+    /// <param name="resourceName">The name of the resource to be used for lookups. If null, the default resource name will be used.</param>
     public JsonResourceManager(string[] resourcesPaths, string resourceName = null)
         : this(resourcesPaths, fallBackToParentUICultures: true, resourceName)
     {
     }
 
+    /// <summary>
+    /// Gets the name of the resource associated with this instance.
+    /// </summary>
     public string ResourceName { get; }
 
+    /// <summary>
+    /// Gets the collection of file system paths to resource files associated with the current instance.
+    /// </summary>
     public string[] ResourcesPaths { get; }
 
+    /// <summary>
+    /// Gets the file path to the resources file used by the application.
+    /// </summary>
     public string ResourcesFilePath { get; private set; }
 
     /// <summary>
@@ -47,6 +81,15 @@ public class JsonResourceManager
     /// </summary>
     public bool FallBackToParentUICultures { get; }
 
+    /// <summary>
+    /// Retrieves the set of localized resources for the specified culture, optionally including resources from parent
+    /// cultures.
+    /// </summary>
+    /// <param name="culture">The culture for which to retrieve the resource set. This determines which localized resources are returned.</param>
+    /// <param name="tryParents">If <see langword="true"/>, resources from parent cultures are included in the result; otherwise, only resources
+    /// for the specified culture are returned.</param>
+    /// <returns>A <see cref="ConcurrentDictionary{string, string}"/> containing the resources for the specified culture, or <see
+    /// langword="null"/> if no resources are available for that culture.</returns>
     public virtual ConcurrentDictionary<string, string> GetResourceSet(CultureInfo culture, bool tryParents)
     {
         TryLoadResourceSet(culture);
@@ -84,6 +127,11 @@ public class JsonResourceManager
         }
     }
 
+    /// <summary>
+    /// Retrieves the localized string resource associated with the specified name for the current UI culture.
+    /// </summary>
+    /// <param name="name">The name of the resource to retrieve. This value is case-sensitive and must not be null.</param>
+    /// <returns>The localized string value if found; otherwise, null.</returns>
     public virtual string GetString(string name)
     {
         var culture = CultureInfo.CurrentUICulture;
@@ -116,6 +164,13 @@ public class JsonResourceManager
         return null;
     }
 
+    /// <summary>
+    /// Retrieves the localized string resource associated with the specified name and culture.
+    /// </summary>
+    /// <param name="name">The name of the resource to retrieve. This value is case-sensitive and must not be null.</param>
+    /// <param name="culture">The culture for which the resource should be retrieved. If the resource is not found for this culture and parent
+    /// culture fallback is enabled, parent cultures will be searched.</param>
+    /// <returns>The localized string value for the specified resource name and culture, or null if the resource is not found.</returns>
     public virtual string GetString(string name, CultureInfo culture)
     {
         GetResourceSet(culture, tryParents: FallBackToParentUICultures);
