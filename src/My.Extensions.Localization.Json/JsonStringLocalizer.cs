@@ -61,18 +61,6 @@ public class JsonStringLocalizer : IStringLocalizer
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    [Obsolete("This constructor has been deprected and will be removed in the upcoming major release.")]
-    public JsonStringLocalizer(
-        JsonResourceManager jsonResourceManager,
-        IResourceStringProvider resourceStringProvider,
-        IResourceNamesCache resourceNamesCache,
-        ILogger logger)
-    {
-        _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
-        _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
     /// <inheritdoc/>
     public LocalizedString this[string name]
     {
