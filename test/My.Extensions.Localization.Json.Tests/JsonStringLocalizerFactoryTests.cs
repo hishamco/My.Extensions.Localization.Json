@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -85,28 +87,36 @@ public class JsonStringLocalizerFactoryTests
     [Fact]
     public async Task LocalizerReturnsTranslationFromInnerClass()
     {
-        var webHostBuilder = new WebHostBuilder()
-            .ConfigureServices(services =>
+        using var host = new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
             {
-                services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
-            })
-            .Configure(app =>
-            {
-                app.UseRequestLocalization("en", "ar");
-
-                app.Run(async context =>
+                webBuilder.ConfigureServices(services =>
                 {
-                    var localizer = context.RequestServices.GetService<IStringLocalizer<Model>>();
+                    services.AddSingleton<IServer>(serviceProvider => new TestServer(serviceProvider));
+                    
+                    services.AddJsonLocalization(options => options.ResourcesPath = ["Resources"]);
+                })
+                .Configure(app =>
+                {
+                    app.UseRequestLocalization("en", "ar");
 
-                    LocalizationHelper.SetCurrentCulture("ar");
+                    app.Run(async context =>
+                    {
+                        var localizer = context.RequestServices.GetService<IStringLocalizer<Model>>();
 
-                    Assert.Equal("مرحباً", localizer["Hello"]);
+                        LocalizationHelper.SetCurrentCulture("ar");
 
-                    await Task.CompletedTask;
+                        Assert.Equal("مرحباً", localizer["Hello"]);
+
+                        await Task.CompletedTask;
+                    });
                 });
-            });
+            })
+            .Build();
 
-        using var server = new TestServer(webHostBuilder);
+        await host.StartAsync();
+
+        using var server = host.GetTestServer();
         var client = server.CreateClient();
         var response = await client.GetAsync("/");
     }
@@ -186,7 +196,7 @@ public class JsonStringLocalizerFactoryTests
     private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
         => _localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions {
-                ResourcesPath = new[] { resourcesPath },
+                ResourcesPath = [resourcesPath],
                 ResourcesType = resourcesType
             });
 
