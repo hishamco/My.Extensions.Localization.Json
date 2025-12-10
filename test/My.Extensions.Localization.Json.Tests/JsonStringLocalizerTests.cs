@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +7,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using My.Extensions.Localization.Json.Tests.Common;
+using System.Linq;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
@@ -22,7 +21,7 @@ public class JsonStringLocalizerTests
     {
         var _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         _localizationOptions.Setup(o => o.Value)
-            .Returns(() => new JsonLocalizationOptions { ResourcesPath = "Resources" });
+            .Returns(() => new JsonLocalizationOptions { ResourcesPath = ["Resources"] });
         var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
         var basename = $"{location}.Common.{nameof(Test)}";
@@ -135,7 +134,7 @@ public class JsonStringLocalizerTests
             {
                 services.AddJsonLocalization(options =>
                 {
-                    options.ResourcesPath = "Resources";
+                    options.ResourcesPath = ["Resources"];
                     options.ResourcesType = ResourcesType.CultureBased;
                 });
             })
@@ -177,6 +176,83 @@ public class JsonStringLocalizerTests
         Assert.Equal(expected, translation);
     }
 
+    [Fact]
+    public void GetTranslation_WithFallBackToParentUICulturesDisabled_DoesNotFallbackToParentCulture()
+    {
+        // Arrange
+        var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
+        localizationOptions.Setup(o => o.Value)
+            .Returns(() => new JsonLocalizationOptions 
+            { 
+                ResourcesPath = ["Resources"]
+            });
+        
+        var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
+        requestLocalizationOptions.Setup(o => o.Value)
+            .Returns(() => new RequestLocalizationOptions 
+            { 
+                FallBackToParentUICultures = false
+            });
+        
+        var localizerFactory = new JsonStringLocalizerFactory(
+            localizationOptions.Object, 
+            NullLoggerFactory.Instance,
+            requestLocalizationOptions.Object);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
+        var localizer = localizerFactory.Create(basename, location);
+        
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Act
+        // "Yes" exists only in Test.fr.json (parent culture), not in Test.fr-FR.json
+        var translation = localizer["Yes"];
+
+        // Assert
+        // When FallBackToParentUICultures is disabled, it should not find "Yes" in fr-FR
+        // and return the key itself as the translation was not found
+        Assert.Equal("Yes", translation.Value);
+        Assert.True(translation.ResourceNotFound);
+    }
+
+    [Fact]
+    public void GetTranslation_WithFallBackToParentUICulturesEnabled_FallsBackToParentCulture()
+    {
+        // Arrange
+        var localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
+        localizationOptions.Setup(o => o.Value)
+            .Returns(() => new JsonLocalizationOptions 
+            { 
+                ResourcesPath = ["Resources"]
+            });
+        
+        var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
+        requestLocalizationOptions.Setup(o => o.Value)
+            .Returns(() => new RequestLocalizationOptions 
+            { 
+                FallBackToParentUICultures = true
+            });
+        
+        var localizerFactory = new JsonStringLocalizerFactory(
+            localizationOptions.Object, 
+            NullLoggerFactory.Instance,
+            requestLocalizationOptions.Object);
+        var location = "My.Extensions.Localization.Json.Tests";
+        var basename = $"{location}.Common.{nameof(Test)}";
+        var localizer = localizerFactory.Create(basename, location);
+        
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Act
+        // "Yes" exists only in Test.fr.json (parent culture), not in Test.fr-FR.json
+        var translation = localizer["Yes"];
+
+        // Assert
+        // When FallBackToParentUICultures is enabled (default), it should find "Yes" in fr (parent)
+        Assert.Equal("Oui", translation.Value);
+        Assert.False(translation.ResourceNotFound);
+    }
+  
     [Theory]
     [InlineData("fr-FR", "Yes", "Oui")]  // "Yes" only exists in fr.json, should fallback from fr-FR to fr
     [InlineData("fr-FR", "Hello", "Bonjour")]  // "Hello" exists in both, fr-FR should take precedence

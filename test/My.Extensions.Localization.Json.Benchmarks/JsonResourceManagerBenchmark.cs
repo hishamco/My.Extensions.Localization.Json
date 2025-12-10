@@ -13,7 +13,7 @@ public class JsonResourceManagerBenchmark
 
     static JsonResourceManagerBenchmark()
     {
-        var resources = "Resources";
+        var resources = new[] { "Resources" };
         _jsonResourceManager = new JsonResourceManager(resources, Path.Combine("fr-FR.json"));
         _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
     }
