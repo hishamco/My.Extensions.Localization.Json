@@ -14,7 +14,7 @@ namespace LocalizationSample
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
         }
 
         public void Configure(IApplicationBuilder app, IHostEnvironment env, IStringLocalizer localizer1, IStringLocalizer<Startup> localizer2)

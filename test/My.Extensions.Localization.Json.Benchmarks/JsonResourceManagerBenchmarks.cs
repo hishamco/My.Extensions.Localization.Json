@@ -15,7 +15,7 @@ namespace My.Extensions.Localization.Json.Benchmarks
 
         static JsonResourceManagerBenchmarks()
         {
-            _jsonResourceManager = new JsonResourceManager("Resources\\fr-FR.json");
+            _jsonResourceManager = new JsonResourceManager(new[] { "Resources\\fr-FR.json" });
             _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
         }
 
