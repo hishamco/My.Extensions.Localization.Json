@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,12 +25,20 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     public JsonStringLocalizerFactory(
         IOptions<JsonLocalizationOptions> localizationOptions,
         ILoggerFactory loggerFactory)
+        : this(localizationOptions, loggerFactory, null)
+    {
+    }
+
+    public JsonStringLocalizerFactory(
+        IOptions<JsonLocalizationOptions> localizationOptions,
+        ILoggerFactory loggerFactory,
+        IOptions<RequestLocalizationOptions> requestLocalizationOptions)
     {
         ArgumentNullException.ThrowIfNull(localizationOptions);
 
         _resourcesRelativePath = localizationOptions.Value.ResourcesPath ?? string.Empty;
         _resourcesType = localizationOptions.Value.ResourcesType;
-        _fallBackToParentUICultures = localizationOptions.Value.FallBackToParentUICultures;
+        _fallBackToParentUICultures = requestLocalizationOptions?.Value?.FallBackToParentUICultures ?? true;
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 

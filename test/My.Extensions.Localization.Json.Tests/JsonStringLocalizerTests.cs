@@ -185,10 +185,20 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = "Resources",
+                ResourcesPath = "Resources"
+            });
+        
+        var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
+        requestLocalizationOptions.Setup(o => o.Value)
+            .Returns(() => new RequestLocalizationOptions 
+            { 
                 FallBackToParentUICultures = false
             });
-        var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
+        
+        var localizerFactory = new JsonStringLocalizerFactory(
+            localizationOptions.Object, 
+            NullLoggerFactory.Instance,
+            requestLocalizationOptions.Object);
         var location = "My.Extensions.Localization.Json.Tests";
         var basename = $"{location}.Common.{nameof(Test)}";
         var localizer = localizerFactory.Create(basename, location);
@@ -214,10 +224,20 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = "Resources",
+                ResourcesPath = "Resources"
+            });
+        
+        var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
+        requestLocalizationOptions.Setup(o => o.Value)
+            .Returns(() => new RequestLocalizationOptions 
+            { 
                 FallBackToParentUICultures = true
             });
-        var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
+        
+        var localizerFactory = new JsonStringLocalizerFactory(
+            localizationOptions.Object, 
+            NullLoggerFactory.Instance,
+            requestLocalizationOptions.Object);
         var location = "My.Extensions.Localization.Json.Tests";
         var basename = $"{location}.Common.{nameof(Test)}";
         var localizer = localizerFactory.Create(basename, location);
