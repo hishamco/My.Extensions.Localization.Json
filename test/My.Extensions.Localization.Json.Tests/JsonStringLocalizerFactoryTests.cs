@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.TestHost;
@@ -12,6 +9,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using My.Extensions.Localization.Json.Tests.Common;
+using System;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
@@ -89,7 +88,7 @@ public class JsonStringLocalizerFactoryTests
         var webHostBuilder = new WebHostBuilder()
             .ConfigureServices(services =>
             {
-                services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+                services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
             })
             .Configure(app =>
             {
@@ -112,10 +111,82 @@ public class JsonStringLocalizerFactoryTests
         var response = await client.GetAsync("/");
     }
 
+    [Fact]
+    public void CreateLocalizerWithType_WithoutRootNamespaceAttribute_UsesAssemblyName()
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("en");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act
+        var localizer = localizerFactory.Create(typeof(ResourcesClassLibraryNoAttribute.TestModel));
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Hello from NoAttribute", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithType_WithRootNamespaceAttribute_UsesRootNamespace()
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("en");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act
+        var localizer = localizerFactory.Create(typeof(MyCustomNamespace.TestModel));
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Hello from WithAttribute", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithBasenameAndLocation_WithoutRootNamespaceAttribute()
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        var location = "ResourcesClassLibraryNoAttribute";
+        var basename = $"{location}.TestModel";
+
+        // Act
+        var localizer = localizerFactory.Create(basename, location);
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour from NoAttribute", localizer["Hello"]);
+    }
+
+    [Fact]
+    public void CreateLocalizerWithBasenameAndLocation_WithRootNamespaceAttribute()
+    {
+        SetupLocalizationOptions("Resources");
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+        var location = "ResourcesClassLibraryWithAttribute";
+        var basename = "MyCustomNamespace.TestModel";
+
+        // Act
+        var localizer = localizerFactory.Create(basename, location);
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour from WithAttribute", localizer["Hello"]);
+    }
+
     private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
         => _localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions {
-                ResourcesPath = resourcesPath,
+                ResourcesPath = new[] { resourcesPath },
                 ResourcesType = resourcesType
             });
 
@@ -125,7 +196,7 @@ public class JsonStringLocalizerFactoryTests
         {
             services.AddMvc();
             services.AddLocalization();
-            services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
         }
 
         public void Configure(IApplicationBuilder app, IStringLocalizer<Model> localizer)

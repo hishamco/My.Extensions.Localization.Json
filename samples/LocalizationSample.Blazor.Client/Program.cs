@@ -14,7 +14,7 @@ namespace LocalizationSample.Blazor.Client
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
-            builder.Services.AddJsonLocalization(options => options.ResourcesPath = "Resources");
+            builder.Services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
 
             await builder.Build().RunAsync();
         }

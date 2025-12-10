@@ -22,7 +22,7 @@ public class JsonStringLocalizerTests
     {
         var _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         _localizationOptions.Setup(o => o.Value)
-            .Returns(() => new JsonLocalizationOptions { ResourcesPath = "Resources" });
+            .Returns(() => new JsonLocalizationOptions { ResourcesPath = new[] { "Resources" } });
         var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
         var basename = $"{location}.Common.{nameof(Test)}";
@@ -135,7 +135,7 @@ public class JsonStringLocalizerTests
             {
                 services.AddJsonLocalization(options =>
                 {
-                    options.ResourcesPath = "Resources";
+                    options.ResourcesPath = new[] { "Resources" };
                     options.ResourcesType = ResourcesType.CultureBased;
                 });
             })
