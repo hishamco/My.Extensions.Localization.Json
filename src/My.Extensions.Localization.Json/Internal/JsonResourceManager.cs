@@ -14,7 +14,7 @@ public class JsonResourceManager
     private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
     public JsonResourceManager(string resourcesPath, string resourceName = null)
-        : this(resourcesPath, fallBackToParentUICultures: true, resourceName)
+        : this(new[] { resourcesPath }, fallBackToParentUICultures: true, resourceName)
     {
     }
 
@@ -30,8 +30,8 @@ public class JsonResourceManager
         }
     }
 
-    public JsonResourceManager(string[] resourcesPaths)
-        : this(resourcesPaths, null)
+    public JsonResourceManager(string[] resourcesPaths, string resourceName = null)
+        : this(resourcesPaths, fallBackToParentUICultures: true, resourceName)
     {
     }
 

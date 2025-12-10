@@ -185,7 +185,7 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = "Resources"
+                ResourcesPath = new[] { "Resources" }
             });
         
         var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
@@ -224,7 +224,7 @@ public class JsonStringLocalizerTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions 
             { 
-                ResourcesPath = "Resources"
+                ResourcesPath = new[] { "Resources" }
             });
         
         var requestLocalizationOptions = new Mock<IOptions<RequestLocalizationOptions>>();
