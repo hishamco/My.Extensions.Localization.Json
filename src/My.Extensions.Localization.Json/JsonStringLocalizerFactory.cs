@@ -43,6 +43,31 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
     }
 
+    /// <summary>
+    /// Gets the cache used to store resource names.
+    /// </summary>
+    protected IResourceNamesCache ResourceNamesCache => _resourceNamesCache;
+
+    /// <summary>
+    /// Gets the cache used to store localizer instances.
+    /// </summary>
+    protected ConcurrentDictionary<string, JsonStringLocalizer> LocalizerCache => _localizerCache;
+
+    /// <summary>
+    /// Gets the resources relative path.
+    /// </summary>
+    protected string ResourcesRelativePath => _resourcesRelativePath;
+
+    /// <summary>
+    /// Gets the resources type.
+    /// </summary>
+    protected ResourcesType ResourcesType => _resourcesType;
+
+    /// <summary>
+    /// Gets the logger factory.
+    /// </summary>
+    protected ILoggerFactory LoggerFactory => _loggerFactory;
+
     public IStringLocalizer Create(Type resourceSource)
     {
         ArgumentNullException.ThrowIfNull(resourceSource);

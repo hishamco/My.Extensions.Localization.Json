@@ -96,7 +96,7 @@ public class JsonStringLocalizer : IStringLocalizer
         }
     }
 
-    protected string GetStringSafely(string name, CultureInfo culture)
+    protected virtual string GetStringSafely(string name, CultureInfo culture)
     {
         ArgumentNullException.ThrowIfNull(name);
 
