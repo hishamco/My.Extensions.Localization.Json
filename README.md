@@ -33,10 +33,19 @@ builder.Services.AddJsonLocalization(options =>
 Depending on the `ResourcesType` selected, your file structure will differ:
 
 #### Type-Based (Default)
-Resources are matched based on the class's full name or relative to the `ResourcesPath`.
+Resources are matched based on the class's full name (excluding the root namespace) or relative to the `ResourcesPath`.
 
-- **Resource Path**: `Resources/Controllers.HomeController.fr-FR.json`
-- **Or**: `Resources/Controllers/HomeController.fr-FR.json`
+If your class is `MyApp.Controllers.HomeController` and the root namespace is `MyApp`:
+
+- **Option 1: Dot-separated in ResourcesPath**
+  - `Resources/Controllers.HomeController.fr-FR.json`
+  - `Resources/Controllers.HomeController.fr.json`
+
+- **Option 2: Folder-based structure**
+  - `Resources/Controllers/HomeController.fr-FR.json`
+  - `Resources/Controllers/HomeController.fr.json`
+
+The localizer will first look for the dot-separated file in the root `ResourcesPath`, and if not found, it will look in the folder-based structure. It also supports culture fallback (e.g., if `fr-FR` is requested but not found, it can use `fr`).
 
 #### Culture-Based
 Resources are matched based on the culture name only.
@@ -56,57 +65,11 @@ The resource files should be valid JSON objects with key-value pairs:
 
 ### 4. Use in Your Application
 
-#### In Controllers
-
-```csharp
-public class HomeController : Controller
-{
-    private readonly IStringLocalizer<HomeController> _localizer;
-
-    public HomeController(IStringLocalizer<HomeController> localizer)
-    {
-        _localizer = localizer;
-    }
-
-    public IActionResult Index()
-    {
-        ViewData["Title"] = _localizer["Hello"];
-        return View();
-    }
-}
-```
-
-#### In Razor Views
-
-```razor
-@using Microsoft.AspNetCore.Mvc.Localization
-@inject IViewLocalizer Localizer
-
-<h1>@Localizer["Hello"]</h1>
-```
-
-#### In Data Annotations
-
-```csharp
-public class RegisterViewModel
-{
-    [Required(ErrorMessage = "The Email field is required.")]
-    [EmailAddress(ErrorMessage = "The Email field is not a valid email address.")]
-    [Display(Name = "Email")]
-    public string Email { get; set; }
-}
-```
-
-Register DataAnnotations localization in `Program.cs`:
-
-```csharp
-builder.Services.AddMvc()
-    .AddDataAnnotationsLocalization();
-```
+You can use the IStringLocalizer normally in you application.
 
 ## Configuration Options
 
 - `ResourcesPath`: An array of paths where the localizer will look for JSON files.
 - `ResourcesType`: 
-    - `TypeBased`: (Default) Look for files based on the type's full name or dot-separated path.
+    - `TypeBased`: (Default) Look for files based on the type's name relative to the assembly's root namespace (e.g., `Controllers.HomeController.fr.json` or `Controllers/HomeController.fr.json`).
     - `CultureBased`: Look for files named after the culture (e.g., `en-US.json`).
