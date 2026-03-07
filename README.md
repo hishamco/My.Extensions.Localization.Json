@@ -16,9 +16,9 @@ dotnet add package My.Extensions.Localization.Json
 
 ## Usage
 
-### 1. Register Services
+### 1. Register JSON Localization Services
 
-In `Program.cs` (or `Startup.cs` for older versions), add the JSON localization services:
+Adds the JSON localization services into DI by adding `AddJsonLocalization` in `Program.cs` or `Startup.cs`, as follows:
 
 ```csharp
 builder.Services.AddJsonLocalization(options => 
@@ -30,31 +30,9 @@ builder.Services.AddJsonLocalization(options =>
 
 ### 2. Create Resource Files
 
-Depending on the `ResourcesType` selected, your file structure will differ:
+Your localization resource should placed based on `ResourcesPath` folder, similar to the default .resx-based localization, but using JSON files instead. The file naming convention depends on the `ResourcesType` configuration.
 
-#### Type-Based (Default)
-Resources are matched based on the class's full name (excluding the root namespace) or relative to the `ResourcesPath`.
-
-If your class is `MyApp.Controllers.HomeController` and the root namespace is `MyApp`:
-
-- **Option 1: Dot-separated in ResourcesPath**
-  - `Resources/Controllers.HomeController.fr-FR.json`
-  - `Resources/Controllers.HomeController.fr.json`
-
-- **Option 2: Folder-based structure**
-  - `Resources/Controllers/HomeController.fr-FR.json`
-  - `Resources/Controllers/HomeController.fr.json`
-
-The localizer will first look for the dot-separated file in the root `ResourcesPath`, and if not found, it will look in the folder-based structure. It also supports culture fallback (e.g., if `fr-FR` is requested but not found, it can use `fr`).
-
-#### Culture-Based
-Resources are matched based on the culture name only.
-
-- **Resource Path**: `Resources/fr-FR.json`
-
-### 3. Resource File Content
-
-The resource files should be valid JSON objects with key-value pairs:
+The resource file should be valid JSON objects with key-value pairs, each representing a localized string:
 
 ```json
 {
@@ -63,13 +41,33 @@ The resource files should be valid JSON objects with key-value pairs:
 }
 ```
 
-### 4. Use in Your Application
+#### 2.1 Type-Based
 
-You can use the IStringLocalizer normally in you application.
+The resource files are named based on the type's that uses the `IStringLocalizer`. For more information please refer to the [Resource file naming](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/provide-resources?view=aspnetcore-10.0#resource-file-naming) in ASP.NET Core Globalization and localizations docs.
 
-## Configuration Options
+#### 2.2 Culture-Based
 
-- `ResourcesPath`: An array of paths where the localizer will look for JSON files.
-- `ResourcesType`: 
-    - `TypeBased`: (Default) Look for files based on the type's name relative to the assembly's root namespace (e.g., `Controllers.HomeController.fr.json` or `Controllers/HomeController.fr.json`).
-    - `CultureBased`: Look for files named after the culture (e.g., `en-US.json`).
+The resource files are named based on the supported cultures, for example `ar.json`.
+
+### 3. Use in Your Application
+
+You can use the `IStringLocalizer` normally in your application.
+
+```csharp
+public class HomeController : Controller
+{
+    private readonly IStringLocalizer<HomeController> _localizer;
+
+    public HomeController(IStringLocalizer<HomeController> localizer)
+    {
+        _localizer = localizer;
+    }
+
+    public IActionResult Index()
+    {
+        ViewData["Message"] = _localizer["WelcomeMessage"];
+
+        return View();
+    }
+}
+```
