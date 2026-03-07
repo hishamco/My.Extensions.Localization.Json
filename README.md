@@ -30,7 +30,7 @@ builder.Services.AddJsonLocalization(options =>
 
 ### 2. Create Resource Files
 
-Your localization resource should placed based on `ResourcesPath` folder, similar to the default .resx-based localization, but using JSON files instead. The file naming convention depends on the `ResourcesType` configuration.
+Your localization resource should be placed based on the `ResourcesPath` folder, similar to the default .resx-based localization, but using JSON files instead. The file naming convention depends on the `ResourcesType` configuration.
 
 The resource file should be valid JSON objects with key-value pairs, each representing a localized string:
 
@@ -43,11 +43,11 @@ The resource file should be valid JSON objects with key-value pairs, each repres
 
 #### 2.1 Type-Based
 
-The resource files are named based on the type's that uses the `IStringLocalizer`. For more information please refer to the [Resource file naming](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/provide-resources?view=aspnetcore-10.0#resource-file-naming) in ASP.NET Core Globalization and localizations docs.
+The resource files are named based on the types that use the `IStringLocalizer`. For more information, please refer to the [Resource file naming](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/localization/provide-resources?view=aspnetcore-10.0#resource-file-naming) in the ASP.NET Core Globalization and localizations docs.
 
 #### 2.2 Culture-Based
 
-The resource files are named based on the supported cultures, for example `ar.json`.
+The resource files are named based on the supported cultures, for example, `ar.json`.
 
 ### 3. Use in Your Application
 
