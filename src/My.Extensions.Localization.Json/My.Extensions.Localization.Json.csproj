@@ -1,29 +1,34 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>4.0.0</Version>
-    <Authors>Hisham Bin Ateya</Authors>
-	<Company />
-	<Description>Provides an localizaton implementation APIs to support JSON as underlying source for localization strings.</Description>
-	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<PackageProjectUrl>https://github.com/hishamco/My.Extensions.Localization.Json</PackageProjectUrl>
-	<RepositoryUrl>https://github.com/hishamco/My.Extensions.Localization.Json</RepositoryUrl>
-	<RepositoryType>git</RepositoryType>
-	<PublishRepositoryUrl>true</PublishRepositoryUrl>
-	<PackageTags>ASP.NET Core, Localization, JSON</PackageTags>
-	<PackageReleaseNotes>https://github.com/hishamco/My.Extensions.Localization.Json/releases</PackageReleaseNotes>
-	<PackageId>My.Extensions.Localization.Json</PackageId>
-	<Product>JSON localizer for ASP.NET Core</Product>
-	<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-	<Copyright>2019 My.Extensions.Localizations.Json</Copyright>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<Version>4.1.0</Version>
+		<Authors>Hisham Bin Ateya</Authors>
+		<Company />
+		<Description>Provides an localizaton implementation APIs to support JSON as underlying source for localization strings.</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/hishamco/My.Extensions.Localization.Json</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/hishamco/My.Extensions.Localization.Json</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<PackageTags>ASP.NET Core, Localization, JSON</PackageTags>
+		<PackageReleaseNotes>https://github.com/hishamco/My.Extensions.Localization.Json/releases</PackageReleaseNotes>
+		<PackageId>My.Extensions.Localization.Json</PackageId>
+		<PackageIcon>icon.jpg</PackageIcon>
+		<Product>JSON localizer for ASP.NET Core</Product>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<Copyright>2019 My.Extensions.Localizations.Json</Copyright>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Localization" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="../../images/icon.jpg" Pack="true" PackagePath="icon.jpg" />
+	</ItemGroup>
 
 </Project>
