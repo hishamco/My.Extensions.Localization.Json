@@ -1,0 +1,24 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/samples/">
+    <Project Path="samples/LocalizationSample.Blazor.Client/LocalizationSample.Blazor.Client.csproj" />
+    <Project Path="samples/LocalizationSample.Blazor.Server/LocalizationSample.Blazor.Server.csproj" />
+    <Project Path="samples/LocalizationSample.Mvc/LocalizationSample.Mvc.csproj" />
+    <Project Path="samples/LocalizationSample.Resources/LocalizationSample.Resources.csproj" />
+    <Project Path="samples/LocalizationSample/LocalizationSample.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/My.Extensions.Localization.Json/My.Extensions.Localization.Json.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="test/My.Extensions.Localization.Json.Benchmarks/My.Extensions.Localization.Json.Benchmarks.csproj" />
+    <Project Path="test/My.Extensions.Localization.Json.FunctionalTests/My.Extensions.Localization.Json.FunctionalTests.csproj" />
+    <Project Path="test/My.Extensions.Localization.Json.Tests/My.Extensions.Localization.Json.Tests.csproj" />
+    <Project Path="test/ResourcesClassLibraryNoAttribute/ResourcesClassLibraryNoAttribute.csproj" />
+    <Project Path="test/ResourcesClassLibraryWithAttribute/ResourcesClassLibraryWithAttribute.csproj" />
+  </Folder>
+</Solution>
