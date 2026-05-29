@@ -85,6 +85,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
 
         var paths = GetResourcePaths(assembly);
         typeName = TryFixInnerClassPath(typeName);
+        typeName = TryStripGenericTypeMarkers(typeName);
 
         return _localizerCache.GetOrAdd($"culture={CultureInfo.CurrentUICulture.Name}, typeName={typeName}", _ => CreateJsonStringLocalizer(paths, typeName));
     }
@@ -111,8 +112,10 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             if (_resourcesType == ResourcesType.TypeBased)
             {
                 baseName = TryFixInnerClassPath(baseName);
+
                 var rootNamespace = GetRootNamespace(assembly);
                 resourceName = TrimPrefix(baseName, rootNamespace + ".");
+                resourceName = TryStripGenericTypeMarkers(resourceName);
             }
 
             return CreateJsonStringLocalizer(resourcesPaths, resourceName);
@@ -180,5 +183,14 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
         }
 
         return fixedPath;
+    }
+
+    private static string TryStripGenericTypeMarkers(string typeName)
+    {
+        var backtickIndex = typeName.IndexOf('`', StringComparison.Ordinal);
+
+        return backtickIndex >= 0
+            ? typeName[..backtickIndex]
+            : typeName;
     }
 }

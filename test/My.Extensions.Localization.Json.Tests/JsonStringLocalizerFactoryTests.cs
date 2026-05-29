@@ -193,6 +193,23 @@ public class JsonStringLocalizerFactoryTests
         Assert.Equal("Bonjour from WithAttribute", localizer["Hello"]);
     }
 
+    [Fact]
+    public void CreateLocalizerForGenericType_WithUseGenericResourcesFalse_StripsGenericMarkers()
+    {
+        SetupLocalizationOptions("Resources", ResourcesType.TypeBased);
+        LocalizationHelper.SetCurrentCulture("fr");
+
+        // Arrange
+        var localizerFactory = new JsonStringLocalizerFactory(_localizationOptions.Object, _loggerFactory);
+
+        // Act
+        var localizer = localizerFactory.Create(typeof(Test<string>));
+
+        // Assert
+        Assert.NotNull(localizer);
+        Assert.Equal("Bonjour", localizer["Hello"]);
+    }
+
     private void SetupLocalizationOptions(string resourcesPath, ResourcesType resourcesType = ResourcesType.TypeBased)
         => _localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions {
