@@ -20,7 +20,7 @@ public class MissingLocalizationBehaviorTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
+                ResourcesPath = ["Resources"],
                 MissingLocalizationBehavior = MissingLocalizationBehavior.Ignore
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
@@ -46,7 +46,7 @@ public class MissingLocalizationBehaviorTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
+                ResourcesPath = ["Resources"],
                 MissingLocalizationBehavior = MissingLocalizationBehavior.ThrowException
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
@@ -77,7 +77,7 @@ public class MissingLocalizationBehaviorTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
+                ResourcesPath = ["Resources"],
                 MissingLocalizationBehavior = MissingLocalizationBehavior.LogWarning
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, loggerFactory.Object);
@@ -113,7 +113,7 @@ public class MissingLocalizationBehaviorTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
+                ResourcesPath = ["Resources"],
                 MissingLocalizationBehavior = MissingLocalizationBehavior.ThrowException
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
@@ -137,7 +137,7 @@ public class MissingLocalizationBehaviorTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = "Resources",
+                ResourcesPath = ["Resources"],
                 MissingLocalizationBehavior = MissingLocalizationBehavior.ThrowException
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
