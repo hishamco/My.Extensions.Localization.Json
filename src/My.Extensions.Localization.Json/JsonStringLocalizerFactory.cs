@@ -141,7 +141,7 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
             : new JsonResourceManager(resourcesPaths, _fallBackToParentUICultures, null);
         var logger = _loggerFactory.CreateLogger<JsonStringLocalizer>();
 
-        return new JsonStringLocalizer(resourceManager, _resourceNamesCache, logger, _missingLocalizationBehavior);
+        return new JsonStringLocalizer(resourceManager, _resourceNamesCache, _missingLocalizationBehavior, logger);
     }
 
     private string[] GetResourcePaths(Assembly assembly)

@@ -23,12 +23,8 @@ internal static class JsonStringLocalizerLoggerExtensions
     }
 
     public static void SearchedLocation(this ILogger logger, string key, string searchedLocation, CultureInfo culture)
-    {
-        _searchedLocation(logger, key, searchedLocation, culture, null);
-    }
+        => _searchedLocation(logger, key, searchedLocation, culture, null);
 
     public static void MissingLocalization(this ILogger logger, string key, string searchedLocation, CultureInfo culture)
-    {
-        _missingLocalization(logger, key, searchedLocation, culture, null);
-    }
+        => _missingLocalization(logger, key, searchedLocation, culture, null);
 }

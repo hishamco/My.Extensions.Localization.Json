@@ -1,11 +1,9 @@
-using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using My.Extensions.Localization.Json.Tests.Common;
+using System;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
@@ -68,8 +66,7 @@ public class MissingLocalizationBehaviorTests
         // Arrange
         var loggerFactory = new Mock<ILoggerFactory>();
         var logger = new Mock<ILogger<JsonStringLocalizer>>();
-        
-        // Enable logging for all levels
+
         logger.Setup(l => l.IsEnabled(It.IsAny<LogLevel>())).Returns(true);
         loggerFactory.Setup(f => f.CreateLogger(It.IsAny<string>())).Returns(logger.Object);
         
@@ -93,8 +90,7 @@ public class MissingLocalizationBehaviorTests
         // Assert
         Assert.Equal("NonExistentKey", result.Value);
         Assert.True(result.ResourceNotFound);
-        
-        // Verify logging was called - the warning should be logged
+
         logger.Verify(
             x => x.Log(
                 LogLevel.Warning,

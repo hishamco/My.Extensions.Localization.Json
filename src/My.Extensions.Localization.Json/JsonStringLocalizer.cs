@@ -39,20 +39,20 @@ public class JsonStringLocalizer : IStringLocalizer
         ILogger logger)
         : this(jsonResourceManager,
             new JsonStringProvider(resourceNamesCache, jsonResourceManager),
-            logger,
-            MissingLocalizationBehavior.Ignore)
+            MissingLocalizationBehavior.Ignore,
+            logger)
     {
     }
 
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceNamesCache resourceNamesCache,
-        ILogger logger,
-        MissingLocalizationBehavior missingLocalizationBehavior)
+        MissingLocalizationBehavior missingLocalizationBehavior,
+        ILogger logger)
         : this(jsonResourceManager,
             new JsonStringProvider(resourceNamesCache, jsonResourceManager),
-            logger,
-            missingLocalizationBehavior)
+            missingLocalizationBehavior,
+            logger)
     {
     }
 
@@ -69,20 +69,20 @@ public class JsonStringLocalizer : IStringLocalizer
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
         ILogger logger)
-        : this(jsonResourceManager, resourceStringProvider, logger, MissingLocalizationBehavior.Ignore)
+        : this(jsonResourceManager, resourceStringProvider, MissingLocalizationBehavior.Ignore, logger)
     {
     }
 
     public JsonStringLocalizer(
         JsonResourceManager jsonResourceManager,
         IResourceStringProvider resourceStringProvider,
-        ILogger logger,
-        MissingLocalizationBehavior missingLocalizationBehavior)
+        MissingLocalizationBehavior missingLocalizationBehavior,
+        ILogger logger)
     {
         _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
         _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _missingLocalizationBehavior = missingLocalizationBehavior;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     [Obsolete("This constructor has been deprecated and will be removed in the upcoming major release.")]
@@ -94,8 +94,8 @@ public class JsonStringLocalizer : IStringLocalizer
     {
         _jsonResourceManager = jsonResourceManager ?? throw new ArgumentNullException(nameof(jsonResourceManager));
         _resourceStringProvider = resourceStringProvider ?? throw new ArgumentNullException(nameof(resourceStringProvider));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _missingLocalizationBehavior = MissingLocalizationBehavior.Ignore;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <inheritdoc/>
