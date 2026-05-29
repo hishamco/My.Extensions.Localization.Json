@@ -4,6 +4,10 @@ using System.Text.Json;
 
 namespace My.Extensions.Localization.Json.Internal;
 
+/// <summary>
+/// Provides functionality to load string resources from a JSON file into a dictionary, using dot notation for nested
+/// keys.
+/// </summary>
 public static class JsonResourceLoader
 {
     private static readonly JsonDocumentOptions _jsonDocumentOptions = new()
@@ -12,7 +16,12 @@ public static class JsonResourceLoader
         AllowTrailingCommas = true,
     };
 
-
+    /// <summary>
+    /// Loads key-value pairs from a JSON resource file at the specified path.
+    /// </summary>
+    /// <param name="filePath">The path to the JSON file containing resource definitions. Must refer to an existing file.</param>
+    /// <returns>A dictionary containing resource keys and their corresponding values parsed from the file. Returns an empty
+    /// dictionary if the file does not exist or contains no resources.</returns>
     public static IDictionary<string, string> Load(string filePath)
     {
         var resources = new Dictionary<string, string>();
