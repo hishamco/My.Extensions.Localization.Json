@@ -6,8 +6,17 @@ using My.Extensions.Localization.Json.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
+/// <summary>
+/// Provides extension methods for registering JSON-based localization services with an <see
+/// cref="IServiceCollection"/>.
+/// </summary>
 public static class JsonLocalizationServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds JSON-based localization services to the specified service collection.
+    /// </summary>
+    /// <param name="services">The service collection to which the JSON localization services will be added. Cannot be null.</param>
+    /// <returns>The same service collection instance, with JSON localization services registered.</returns>
     public static IServiceCollection AddJsonLocalization(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -19,6 +28,12 @@ public static class JsonLocalizationServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds JSON-based localization services to the specified service collection.
+    /// </summary>
+    /// <param name="services">The service collection to which the JSON localization services will be added. Cannot be null.</param>
+    /// <param name="setupAction">An action to configure the JSON localization options. Cannot be null.</param>
+    /// <returns>The same instance of <see cref="IServiceCollection"/> with JSON localization services registered.</returns>
     public static IServiceCollection AddJsonLocalization(this IServiceCollection services, Action<JsonLocalizationOptions> setupAction)
     {
         ArgumentNullException.ThrowIfNull(services);
