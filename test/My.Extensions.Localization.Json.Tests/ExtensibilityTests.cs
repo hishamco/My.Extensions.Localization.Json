@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -14,15 +14,13 @@ namespace My.Extensions.Localization.Json.Tests;
 
 public class ExtensibilityTests
 {
-    private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions;
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly Mock<IOptions<JsonLocalizationOptions>> _localizationOptions = new();
+    private readonly ILoggerFactory _loggerFactory = NullLoggerFactory.Instance;
 
     public ExtensibilityTests()
     {
-        _localizationOptions = new Mock<IOptions<JsonLocalizationOptions>>();
         _localizationOptions.Setup(o => o.Value)
-            .Returns(() => new JsonLocalizationOptions { ResourcesPath = "Resources" });
-        _loggerFactory = NullLoggerFactory.Instance;
+            .Returns(() => new JsonLocalizationOptions { ResourcesPath = ["Resources"] });
     }
 
     [Fact]
@@ -49,7 +47,7 @@ public class ExtensibilityTests
         // Assert
         Assert.NotNull(factory.GetResourceNamesCache());
         Assert.NotNull(factory.GetLocalizerCache());
-        Assert.Equal("Resources", factory.GetResourcesRelativePath());
+        Assert.Contains("Resources", factory.GetResourcesRelativePath());
         Assert.Equal(ResourcesType.TypeBased, factory.GetResourcesType());
         Assert.NotNull(factory.GetLoggerFactory());
     }
@@ -68,6 +66,7 @@ public class ExtensibilityTests
         // Assert
         Assert.NotNull(localizer);
         Assert.True(localizer.GetStringSafelyWasCalled);
+        Assert.Equal("Bonjour", result);
     }
 
     [Fact]
@@ -84,84 +83,67 @@ public class ExtensibilityTests
         // Assert
         Assert.NotNull(localizer);
         Assert.True(localizer.GetAllStringsWasCalled);
+        Assert.Contains(result, r => r.Name == "Hello" && r.Value == "Bonjour");
     }
 
-    /// <summary>
-    /// Custom factory that overrides CreateJsonStringLocalizer to demonstrate extensibility.
-    /// </summary>
-    private class CustomJsonStringLocalizerFactory : JsonStringLocalizerFactory
+    private class CustomJsonStringLocalizerFactory(IOptions<JsonLocalizationOptions> localizationOptions, ILoggerFactory loggerFactory)
+        : JsonStringLocalizerFactory(localizationOptions, loggerFactory)
     {
         public bool CreateJsonStringLocalizerWasCalled { get; private set; }
 
-        public CustomJsonStringLocalizerFactory(
-            IOptions<JsonLocalizationOptions> localizationOptions,
-            ILoggerFactory loggerFactory)
-            : base(localizationOptions, loggerFactory)
-        {
-        }
-
-        protected override JsonStringLocalizer CreateJsonStringLocalizer(string resourcesPath, string resourceName)
+        protected override JsonStringLocalizer CreateJsonStringLocalizer(string[] resourcesPaths, string resourceName)
         {
             CreateJsonStringLocalizerWasCalled = true;
-            return base.CreateJsonStringLocalizer(resourcesPath, resourceName);
+
+            return base.CreateJsonStringLocalizer(resourcesPaths, resourceName);
         }
 
         // Expose protected properties for testing
         public IResourceNamesCache GetResourceNamesCache() => ResourceNamesCache;
+
         public ConcurrentDictionary<string, JsonStringLocalizer> GetLocalizerCache() => LocalizerCache;
-        public string GetResourcesRelativePath() => ResourcesRelativePath;
+
+        public string[] GetResourcesRelativePath() => ResourcesPaths;
+
         public ResourcesType GetResourcesType() => ResourcesType;
+
         public ILoggerFactory GetLoggerFactory() => LoggerFactory;
     }
 
-    /// <summary>
-    /// Custom factory that creates CustomJsonStringLocalizer instances.
-    /// </summary>
-    private class CustomLocalizerFactory : JsonStringLocalizerFactory
+    private class CustomLocalizerFactory(IOptions<JsonLocalizationOptions> localizationOptions, ILoggerFactory loggerFactory)
+        : JsonStringLocalizerFactory(localizationOptions, loggerFactory)
     {
-        public CustomLocalizerFactory(
-            IOptions<JsonLocalizationOptions> localizationOptions,
-            ILoggerFactory loggerFactory)
-            : base(localizationOptions, loggerFactory)
-        {
-        }
-
-        protected override JsonStringLocalizer CreateJsonStringLocalizer(string resourcesPath, string resourceName)
+        protected override JsonStringLocalizer CreateJsonStringLocalizer(string[] resourcesPaths, string resourceName)
         {
             var resourceManager = ResourcesType == ResourcesType.TypeBased
-                ? new JsonResourceManager(resourcesPath, resourceName)
-                : new JsonResourceManager(resourcesPath);
+                ? new JsonResourceManager(resourcesPaths, resourceName)
+                : new JsonResourceManager(resourcesPaths);
             var logger = LoggerFactory.CreateLogger<CustomJsonStringLocalizer>();
 
             return new CustomJsonStringLocalizer(resourceManager, ResourceNamesCache, logger);
         }
     }
 
-    /// <summary>
-    /// Custom localizer that overrides GetStringSafely to demonstrate extensibility.
-    /// </summary>
-    private class CustomJsonStringLocalizer : JsonStringLocalizer
+    private class CustomJsonStringLocalizer(
+        JsonResourceManager jsonResourceManager,
+        IResourceNamesCache resourceNamesCache,
+        ILogger logger) : JsonStringLocalizer(jsonResourceManager, resourceNamesCache, logger)
     {
         public bool GetStringSafelyWasCalled { get; private set; }
-        public bool GetAllStringsWasCalled { get; private set; }
 
-        public CustomJsonStringLocalizer(
-            JsonResourceManager jsonResourceManager,
-            IResourceNamesCache resourceNamesCache,
-            ILogger logger)
-            : base(jsonResourceManager, resourceNamesCache, logger)
-        {
-        }
+        public bool GetAllStringsWasCalled { get; private set; }
 
         protected override string GetStringSafely(string name, CultureInfo culture)
         {
             GetStringSafelyWasCalled = true;
+
             return base.GetStringSafely(name, culture);
         }
 
-        public override System.Collections.Generic.IEnumerable<Microsoft.Extensions.Localization.LocalizedString> GetAllStrings(bool includeParentCultures)
+        public override IEnumerable<Microsoft.Extensions.Localization.LocalizedString> GetAllStrings(bool includeParentCultures)
         {
             GetAllStringsWasCalled = true;
+
             return base.GetAllStrings(includeParentCultures);
         }
     }

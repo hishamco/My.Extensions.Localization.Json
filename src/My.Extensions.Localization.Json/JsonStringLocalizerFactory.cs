@@ -76,9 +76,9 @@ public class JsonStringLocalizerFactory : IStringLocalizerFactory
     protected ConcurrentDictionary<string, JsonStringLocalizer> LocalizerCache => _localizerCache;
 
     /// <summary>
-    /// Gets the resources relative path.
+    /// Gets the resources relative path(s).
     /// </summary>
-    protected string ResourcesRelativePath => _resourcesRelativePath;
+    protected string[] ResourcesPaths => _resourcesPaths;
 
     /// <summary>
     /// Gets the resources type.
