@@ -5,7 +5,11 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
+using My.Extensions.Localization.Json.Internal;
 using My.Extensions.Localization.Json.Tests.Common;
+using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -293,6 +297,27 @@ public class JsonStringLocalizerTests
 
         // Assert
         Assert.Contains(localizedStrings, s => s.Name == keyThatShouldExist);
+    }
+
+    [Fact]
+    public async Task ConcurrentFirstLookupsReturnTheTranslation()
+    {
+        // Arrange
+        var resourcesPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(resourcesPath);
+        File.WriteAllText(Path.Combine(resourcesPath, "en.json"), """{ "Hello": "Hello world" }""");
+        var localizer = new JsonStringLocalizer(new JsonResourceManager(resourcesPath), new Caching.ResourceNamesCache(), NullLogger.Instance);
+
+        // Act
+        var translations = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => Task.Run(() =>
+        {
+            CultureInfo.CurrentUICulture = new CultureInfo("en");
+            return localizer["Hello"];
+        })));
+        Directory.Delete(resourcesPath, recursive: true);
+
+        // Assert
+        Assert.All(translations, translation => Assert.Equal("Hello world", translation.Value));
     }
 
     private class SharedResource
