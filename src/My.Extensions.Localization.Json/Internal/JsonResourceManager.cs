@@ -15,7 +15,7 @@ public class JsonResourceManager
 {
     private readonly List<JsonFileWatcher> _jsonFileWatchers = [];
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
-    private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
+    private readonly ConcurrentDictionary<string, Lazy<bool>> _loadedFilesCache = new();
 
     /// <summary>
     /// Initializes a new instance of the JsonResourceManager class using the specified resource directory and optional
@@ -270,14 +270,18 @@ public class JsonResourceManager
         {
             var key = $"{ResourceName}.{resourceCulture.Name}";
             
-            // Track loaded files to avoid re-loading
-            var loadedFiles = _loadedFilesCache.GetOrAdd(key, _ => new HashSet<string>());
-            if (!loadedFiles.Add(resourceFile))
-            {
-                // File already loaded for this key, skip
-                return;
-            }
-            
+            // One load per file. Callers that arrive while it is loading wait for it instead of skipping the file
+            // and finding no strings, which would make the localizer cache the key as missing.
+            var fileLoad = _loadedFilesCache.GetOrAdd(
+                $"{key}|{resourceFile}",
+                _ => new Lazy<bool>(() => AddResources(resourceFile, key)));
+
+            // Reading Value runs the load the first time and waits while another thread runs it.
+            _ = fileLoad.Value;
+        }
+
+        bool AddResources(string resourceFile, string key)
+        {
             if (!_resourcesCache.ContainsKey(key))
             {
                 var resources = JsonResourceLoader.Load(resourceFile);
@@ -295,6 +299,8 @@ public class JsonResourceManager
                     existingResources.TryAdd(item.Key, item.Value);
                 }
             }
+
+            return true;
         }
     }
 
