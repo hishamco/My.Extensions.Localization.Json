@@ -6,7 +6,11 @@ using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
+using My.Extensions.Localization.Json.Internal;
 using My.Extensions.Localization.Json.Tests.Common;
+using System;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -294,6 +298,20 @@ public class JsonStringLocalizerTests
 
         // Assert
         Assert.Contains(localizedStrings, s => s.Name == keyThatShouldExist);
+    }
+
+    [Fact]
+    public async Task GetTranslation_WithConcurrentRequestsAccess_ReturnCorrectTranslation()
+    {
+        // Arrange
+        LocalizationHelper.SetCurrentCulture("fr-FR");
+
+        // Act
+        var translations = await Task.WhenAll(Enumerable.Range(0, 10)
+            .Select(_ => Task.Run(() => _localizer["Hello"])));
+
+        // Assert
+        Assert.All(translations, t => Assert.Equal("Bonjour", t.Value));
     }
 
     private class SharedResource

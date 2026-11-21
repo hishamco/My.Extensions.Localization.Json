@@ -41,7 +41,7 @@ public class JsonResourceManager
         ResourcesPaths = resourcesPaths ?? Array.Empty<string>();
         ResourceName = resourceName;
         FallBackToParentUICultures = fallBackToParentUICultures;
-        
+
         foreach (var path in ResourcesPaths)
         {
             SetupFileWatcher(path);
@@ -269,30 +269,32 @@ public class JsonResourceManager
         void TryAddResources(string resourceFile, CultureInfo resourceCulture)
         {
             var key = $"{ResourceName}.{resourceCulture.Name}";
-            
-            // Track loaded files to avoid re-loading
-            var loadedFiles = _loadedFilesCache.GetOrAdd(key, _ => new HashSet<string>());
-            if (!loadedFiles.Add(resourceFile))
-            {
-                // File already loaded for this key, skip
-                return;
-            }
-            
-            if (!_resourcesCache.ContainsKey(key))
-            {
-                var resources = JsonResourceLoader.Load(resourceFile);
 
-                _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
-            }
-            else
+            // Track loaded files to avoid re-loading
+            var loadedFiles = _loadedFilesCache.GetOrAdd(key, _ => []);
+
+            lock (loadedFiles)
             {
-                // Merge resources from additional paths (don't override existing keys)
-                var existingResources = _resourcesCache[key];
-                var additionalResources = JsonResourceLoader.Load(resourceFile);
-                
-                foreach (var item in additionalResources)
+                if (!loadedFiles.Add(resourceFile))
                 {
-                    existingResources.TryAdd(item.Key, item.Value);
+                    // File already loaded for this key, skip
+                    return;
+                }
+
+                if (!_resourcesCache.TryGetValue(key, out ConcurrentDictionary<string, string> existingResources))
+                {
+                    var resources = JsonResourceLoader.Load(resourceFile);
+
+                    _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
+                }
+                else
+                {
+                    var additionalResources = JsonResourceLoader.Load(resourceFile);
+
+                    foreach (var item in additionalResources)
+                    {
+                        existingResources.TryAdd(item.Key, item.Value);
+                    }
                 }
             }
         }
@@ -304,7 +306,7 @@ public class JsonResourceManager
         {
             return;
         }
-        
+
         var watcher = new JsonFileWatcher(path);
         watcher.Changed += RefreshResourcesCache;
         _jsonFileWatchers.Add(watcher);
