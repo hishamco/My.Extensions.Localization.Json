@@ -15,7 +15,7 @@ public class JsonResourceManager
 {
     private readonly List<JsonFileWatcher> _jsonFileWatchers = [];
     private readonly ConcurrentDictionary<string, ConcurrentDictionary<string, string>> _resourcesCache = new();
-    private readonly ConcurrentDictionary<string, Lazy<bool>> _loadedFilesCache = new();
+    private readonly ConcurrentDictionary<string, HashSet<string>> _loadedFilesCache = new();
 
     /// <summary>
     /// Initializes a new instance of the JsonResourceManager class using the specified resource directory and optional
@@ -41,7 +41,7 @@ public class JsonResourceManager
         ResourcesPaths = resourcesPaths ?? [];
         ResourceName = resourceName;
         FallBackToParentUICultures = fallBackToParentUICultures;
-        
+
         foreach (var path in ResourcesPaths)
         {
             SetupFileWatcher(path);
@@ -269,38 +269,34 @@ public class JsonResourceManager
         void TryAddResources(string resourceFile, CultureInfo resourceCulture)
         {
             var key = $"{ResourceName}.{resourceCulture.Name}";
-            
-            // One load per file. Callers that arrive while it is loading wait for it instead of skipping the file
-            // and finding no strings, which would make the localizer cache the key as missing.
-            var fileLoad = _loadedFilesCache.GetOrAdd(
-                $"{key}|{resourceFile}",
-                _ => new Lazy<bool>(() => AddResources(resourceFile, key)));
 
-            // Reading Value runs the load the first time and waits while another thread runs it.
-            _ = fileLoad.Value;
-        }
+            // Track loaded files to avoid re-loading
+            var loadedFiles = _loadedFilesCache.GetOrAdd(key, _ => []);
 
-        bool AddResources(string resourceFile, string key)
-        {
-            if (!_resourcesCache.ContainsKey(key))
+            lock (loadedFiles)
             {
-                var resources = JsonResourceLoader.Load(resourceFile);
-
-                _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
-            }
-            else
-            {
-                // Merge resources from additional paths (don't override existing keys)
-                var existingResources = _resourcesCache[key];
-                var additionalResources = JsonResourceLoader.Load(resourceFile);
-                
-                foreach (var item in additionalResources)
+                if (!loadedFiles.Add(resourceFile))
                 {
-                    existingResources.TryAdd(item.Key, item.Value);
+                    // File already loaded for this key, skip
+                    return;
+                }
+
+                if (!_resourcesCache.TryGetValue(key, out ConcurrentDictionary<string, string> existingResources))
+                {
+                    var resources = JsonResourceLoader.Load(resourceFile);
+
+                    _resourcesCache.TryAdd(key, new ConcurrentDictionary<string, string>(resources));
+                }
+                else
+                {
+                    var additionalResources = JsonResourceLoader.Load(resourceFile);
+
+                    foreach (var item in additionalResources)
+                    {
+                        existingResources.TryAdd(item.Key, item.Value);
+                    }
                 }
             }
-
-            return true;
         }
     }
 
@@ -310,7 +306,7 @@ public class JsonResourceManager
         {
             return;
         }
-        
+
         var watcher = new JsonFileWatcher(path);
         watcher.Changed += RefreshResourcesCache;
         _jsonFileWatchers.Add(watcher);
