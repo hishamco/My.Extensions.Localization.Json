@@ -300,24 +300,17 @@ public class JsonStringLocalizerTests
     }
 
     [Fact]
-    public async Task ConcurrentFirstLookupsReturnTheTranslation()
+    public async Task GetTranslation_WithConcurrentRequestsAccess_ReturnCorrectTranslation()
     {
         // Arrange
-        var resourcesPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(resourcesPath);
-        File.WriteAllText(Path.Combine(resourcesPath, "en.json"), """{ "Hello": "Hello world" }""");
-        var localizer = new JsonStringLocalizer(new JsonResourceManager(resourcesPath), new Caching.ResourceNamesCache(), NullLogger.Instance);
+        LocalizationHelper.SetCurrentCulture("fr-FR");
 
         // Act
-        var translations = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => Task.Run(() =>
-        {
-            CultureInfo.CurrentUICulture = new CultureInfo("en");
-            return localizer["Hello"];
-        })));
-        Directory.Delete(resourcesPath, recursive: true);
+        var translations = await Task.WhenAll(Enumerable.Range(0, 10)
+            .Select(_ => Task.Run(() => _localizer["Hello"])));
 
         // Assert
-        Assert.All(translations, translation => Assert.Equal("Hello world", translation.Value));
+        Assert.All(translations, t => Assert.Equal("Bonjour", t.Value));
     }
 
     private class SharedResource
