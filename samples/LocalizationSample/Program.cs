@@ -1,20 +1,46 @@
-﻿using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Localization;
+using System.Globalization;
 
-namespace LocalizationSample
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddJsonLocalization(options
+    => options.ResourcesPath = new[] { "Resources" });
+
+var app = builder.Build();
+
+var supportedCultures = new List<CultureInfo>
 {
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            BuildWebHost(args).Run();
-        }
+    new CultureInfo("en-US"),
+    new CultureInfo("fr-FR")
+};
+var options = new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture("en-US"),
+    SupportedCultures = supportedCultures,
+    SupportedUICultures = supportedCultures
+};
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .ConfigureLogging(loggingBuilder => loggingBuilder.SetMinimumLevel(LogLevel.Debug))
-                .UseStartup<Startup>()
-                .Build();
-    }
+app.UseRequestLocalization(options);
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+
+app.MapGet("/", async (context) =>
+{
+    var localizer1 = context.RequestServices.GetRequiredService<IStringLocalizer>();
+    var localizer2 = context.RequestServices.GetRequiredService<IStringLocalizer<Program>>();
+
+    await context.Response.WriteAsync($"{localizer1["Hello"]}!!");
+    await context.Response.WriteAsync($"{localizer2["Hello"]}!!");
+});
+
+await app.RunAsync();
+
+partial class Program
+{
+    // Just for strongly typed resource
+    public string Hello { get; set; }
 }
