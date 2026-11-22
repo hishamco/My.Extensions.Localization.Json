@@ -7,7 +7,7 @@ using Xunit;
 
 namespace LocalizationSample.Mvc.FunctionalTest;
 
-public class LocalizationMvcSampleTests(WebApplicationFactory<Startup> factory) : IClassFixture<WebApplicationFactory<Startup>>
+public class LocalizationMvcSampleTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly HttpClient _client = factory.CreateClient();
 
