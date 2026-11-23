@@ -38,7 +38,7 @@ public class JsonResourceManager
     /// <param name="resourceName">The name of the resource to be managed. If null, the manager will use the default resource name resolution.</param>
     public JsonResourceManager(string[] resourcesPaths, bool fallBackToParentUICultures, string resourceName = null)
     {
-        ResourcesPaths = resourcesPaths ?? Array.Empty<string>();
+        ResourcesPaths = resourcesPaths ?? [];
         ResourceName = resourceName;
         FallBackToParentUICultures = fallBackToParentUICultures;
         

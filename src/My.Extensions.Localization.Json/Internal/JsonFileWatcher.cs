@@ -48,7 +48,7 @@ public class JsonFileWatcher : IDisposable
     public void Dispose()
     {
         Dispose(true);
-        GC.SuppressFinalize(true);
+        GC.SuppressFinalize(this);
     }
 
     /// <summary>

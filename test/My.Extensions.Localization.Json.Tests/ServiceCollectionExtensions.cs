@@ -13,12 +13,7 @@ public static class ServiceCollectionExtensions
     internal static int Count(this IServiceCollection services, Type serviceType, Type implementationType)
     {
         ArgumentNullException.ThrowIfNull(services);
-
-        if (serviceType == null)
-        {
-            throw new ArgumentNullException(nameof(serviceType));
-        }
-
+        ArgumentNullException.ThrowIfNull(serviceType);
         ArgumentNullException.ThrowIfNull(implementationType);
 
         var matches = services

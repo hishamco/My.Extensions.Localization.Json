@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
+using System.Linq;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;
@@ -26,24 +26,25 @@ public class JsonLocalizationServiceCollectionExtensionsTests
     public void AddJsonLocalizationWithOptions()
     {
         // Arrange
+        var resourcesPath = new[] { "Resources" };
         var services = new ServiceCollection();
         var localizationOptions = new JsonLocalizationOptions();
 
         // Act
         JsonLocalizationServiceCollectionExtensions.AddJsonLocalization(services,
-            options => options.ResourcesPath = new[] { "Resources" });
+            options => options.ResourcesPath = resourcesPath);
 
         var localizationConfigureOptions = (ConfigureNamedOptions<JsonLocalizationOptions>)services
             .SingleOrDefault(sd => sd.ServiceType == typeof(IConfigureOptions<JsonLocalizationOptions>))
             ?.ImplementationInstance;
 
         // Assert
-        Assert.Equal(1, services.Count(typeof(IStringLocalizerFactory), typeof(JsonStringLocalizerFactory)));
+        Assert.Equal(1, services.Count<IStringLocalizerFactory, JsonStringLocalizerFactory>());
         Assert.Equal(1, services.Count(typeof(IStringLocalizer<>), typeof(StringLocalizer<>)));
         Assert.NotNull(localizationConfigureOptions);
 
         localizationConfigureOptions.Action.Invoke(localizationOptions);
 
-        Assert.Equal(new[] { "Resources" }, localizationOptions.ResourcesPath);
+        Assert.Equal(resourcesPath, localizationOptions.ResourcesPath);
     }
 }

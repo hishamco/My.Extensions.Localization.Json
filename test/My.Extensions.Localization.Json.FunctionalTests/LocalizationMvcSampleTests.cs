@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-namespace LocalizationSample.Mvc.FunctionalTest;
+namespace My.Extensions.Localization.Json.FunctionalTests;
 
 public class LocalizationMvcSampleTests(WebApplicationFactory<Program> factory) : IClassFixture<WebApplicationFactory<Program>>
 {

@@ -1,5 +1,3 @@
 ﻿namespace My.Extensions.Localization.Json.Tests.Common;
 
-internal class Test<T>
-{
-}
+internal class Test<T>;

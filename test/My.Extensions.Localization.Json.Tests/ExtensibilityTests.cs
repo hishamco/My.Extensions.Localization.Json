@@ -1,6 +1,3 @@
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -8,6 +5,9 @@ using Moq;
 using My.Extensions.Localization.Json.Caching;
 using My.Extensions.Localization.Json.Internal;
 using My.Extensions.Localization.Json.Tests.Common;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Globalization;
 using Xunit;
 
 namespace My.Extensions.Localization.Json.Tests;

@@ -1,6 +1,5 @@
-﻿namespace LocalizationSample.Resources
+﻿namespace LocalizationSample.Resources;
+
+public class Model
 {
-    public class Model
-    {
-    }
 }

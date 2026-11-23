@@ -1,14 +1,11 @@
 using LocalizationSample.Blazor.Server.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("fr-FR");
 
-builder.Services.AddJsonLocalization(options => options.ResourcesPath = new[] { "Resources" });
+builder.Services.AddJsonLocalization(options => options.ResourcesPath = ["Resources"]);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddSingleton<WeatherForecastService>();
@@ -33,10 +30,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapBlazorHub();
-    endpoints.MapFallbackToPage("/_Host");
-});
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 await app.RunAsync();
