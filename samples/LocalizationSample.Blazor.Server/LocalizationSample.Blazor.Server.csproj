@@ -6,6 +6,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="Program.cs~RF38a6fa92.TMP" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<ProjectReference Include="..\..\src\My.Extensions.Localization.Json\My.Extensions.Localization.Json.csproj" />
 	</ItemGroup>
 

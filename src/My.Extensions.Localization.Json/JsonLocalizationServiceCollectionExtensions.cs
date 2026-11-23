@@ -49,7 +49,7 @@ public static class JsonLocalizationServiceCollectionExtensions
     {
         services.TryAddSingleton<IStringLocalizerFactory, JsonStringLocalizerFactory>();
         services.TryAddTransient(typeof(IStringLocalizer<>), typeof(StringLocalizer<>));
-        services.TryAddTransient(typeof(IStringLocalizer), typeof(StringLocalizer));
+        services.TryAddTransient<IStringLocalizer, StringLocalizer>();
     }
 
     internal static void AddJsonLocalizationServices(IServiceCollection services, Action<JsonLocalizationOptions> setupAction)

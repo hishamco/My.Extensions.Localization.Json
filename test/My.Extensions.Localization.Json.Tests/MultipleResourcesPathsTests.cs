@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -17,7 +16,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources", "AdditionalResources" }
+                ResourcesPath = ["Resources", "AdditionalResources"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -41,7 +40,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources", "AdditionalResources" }
+                ResourcesPath = ["Resources", "AdditionalResources"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -65,7 +64,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources", "AdditionalResources" }
+                ResourcesPath = ["Resources", "AdditionalResources"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -91,7 +90,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources", "AdditionalResources" }
+                ResourcesPath = ["Resources", "AdditionalResources"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -115,7 +114,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources" }
+                ResourcesPath = ["Resources"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";
@@ -139,7 +138,7 @@ public class MultipleResourcesPathsTests
         localizationOptions.Setup(o => o.Value)
             .Returns(() => new JsonLocalizationOptions
             {
-                ResourcesPath = new[] { "Resources", "AdditionalResources", "NonExistentPath" }
+                ResourcesPath = ["Resources", "AdditionalResources", "NonExistentPath"]
             });
         var localizerFactory = new JsonStringLocalizerFactory(localizationOptions.Object, NullLoggerFactory.Instance);
         var location = "My.Extensions.Localization.Json.Tests";

@@ -1,27 +1,16 @@
-﻿using Microsoft.AspNetCore.Localization;
-using Microsoft.Extensions.Localization;
-using System.Globalization;
+﻿using Microsoft.Extensions.Localization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddJsonLocalization(options
-    => options.ResourcesPath = new[] { "Resources" });
+builder.Services.AddJsonLocalization(options => options.ResourcesPath = ["Resources"]);
 
 var app = builder.Build();
 
-var supportedCultures = new List<CultureInfo>
-{
-    new CultureInfo("en-US"),
-    new CultureInfo("fr-FR")
-};
-var options = new RequestLocalizationOptions
-{
-    DefaultRequestCulture = new RequestCulture("en-US"),
-    SupportedCultures = supportedCultures,
-    SupportedUICultures = supportedCultures
-};
-
-app.UseRequestLocalization(options);
+app.UseRequestLocalization(options
+    => options.AddSupportedCultures("en-US", "fr-FR")
+    .AddSupportedUICultures("en-US", "fr-FR")
+    .SetDefaultCulture("en-US")
+);
 
 if (app.Environment.IsDevelopment())
 {
