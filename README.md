@@ -2,7 +2,7 @@
 
 JSON Localization Resources for ASP.NET Core.
 
-NuGet Package: [![NuGet](https://img.shields.io/nuget/v/My.Extensions.Localization.Json.svg)](https://www.nuget.org/packages/My.Extensions.Localization.Json/4.0.0)
+NuGet Package: ![NuGet](https://img.shields.io/nuget/v/My.Extensions.Localization.Json) ![NuGet Downloads](https://img.shields.io/nuget/dt/My.Extensions.Localization.Json)
 
 Build Status: [![Build status](https://github.com/hishamco/My.Extensions.Localization.Json/actions/workflows/build.yml/badge.svg)](https://github.com/hishamco/My.Extensions.Localization.Json/actions?query=workflow%3A%22My.Extensions.Localization.Json%22)
 
