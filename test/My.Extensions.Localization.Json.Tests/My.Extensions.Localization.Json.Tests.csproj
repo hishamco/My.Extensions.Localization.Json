@@ -17,4 +17,28 @@
 		<ProjectReference Include="..\ResourcesClassLibraryWithAttribute\ResourcesClassLibraryWithAttribute.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Update="Resources\Common\Test.zh.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\JsonStringLocalizerFactoryTests.Model.ar.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\fr-FR.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Common\Test.ar.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Common\Test.fr-FR.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Resources\Common\Test.fr.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="AdditionalResources\Common\Test.fr-FR.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>
