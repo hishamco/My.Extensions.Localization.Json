@@ -2,14 +2,20 @@
 
 	<PropertyGroup>
 		<OutputType>Exe</OutputType>
+		<TargetFrameworks>net10.0</TargetFrameworks>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="BenchmarkDotNet" />
+		<PackageReference Include="My.Extensions.Localization.Json" VersionOverride="$(JsonLocalizationVersion)" Condition="'$(JsonLocalizationVersion)' != ''" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<ItemGroup Condition="'$(JsonLocalizationVersion)' == ''">
 		<ProjectReference Include="..\..\src\My.Extensions.Localization.Json\My.Extensions.Localization.Json.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(JsonLocalizationVersion)' != ''">
+		<Compile Remove="JsonResourceLoaderBenchmark.cs;JsonResourceManagerBenchmark.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
