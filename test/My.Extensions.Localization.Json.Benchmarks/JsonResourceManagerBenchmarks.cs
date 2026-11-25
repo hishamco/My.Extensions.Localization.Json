@@ -15,7 +15,7 @@ public class JsonResourceManagerBenchmarks
 
     static JsonResourceManagerBenchmarks()
     {
-        _jsonResourceManager = new JsonResourceManager(["Resources\\fr-FR.json"]);
+        _jsonResourceManager = new JsonResourceManager(Path.Combine(AppContext.BaseDirectory, "Resources"));
         _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
     }
 
@@ -31,12 +31,44 @@ public class JsonResourceManagerBenchmarks
     {
         public BenchmarkConfig()
         {
-            var baseJob = Job.MediumRun.WithToolchain(CsProjCoreToolchain.NetCoreApp80);
+            var directory = FindRepositoryRoot();
+            var restoreConfigFile = Path.Combine(directory.FullName, "NuGet.Config");
 
-            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.0.0"));
-            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.1.0"));
-            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.2.0"));
-            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.3.0"));
+            var targetVersions = new[] { "3.0.0", "3.1.0", "3.2.0", "3.3.0", "3.4.0", "4.0.0", "4.1.0" };
+            foreach (var version in targetVersions)
+            {
+                AddJob(Job.MediumRun
+                    .WithId($"v{version}")
+                    .WithToolchain(CsProjCoreToolchain.NetCoreApp10_0)
+                    .WithMsBuildArguments(
+                        "/p:TargetFrameworks=net10.0",
+                        $"/p:JsonLocalizationVersion={version}",
+                        $"/p:RestoreConfigFile=\"{restoreConfigFile}\""
+                    )
+                );
+            }
+
+            AddJob(Job.MediumRun
+                .WithId("Current")
+                .AsBaseline()
+                .WithToolchain(CsProjCoreToolchain.NetCoreApp10_0)
+                .WithMsBuildArguments("/p:TargetFrameworks=net10.0"));
+        }
+
+        private static DirectoryInfo FindRepositoryRoot()
+        {
+            var directory = new DirectoryInfo(AppContext.BaseDirectory);
+            while (directory != null && !File.Exists(Path.Combine(directory.FullName, "NuGet.Config")))
+            {
+                directory = directory.Parent;
+            }
+            
+            if (directory == null)
+            {
+                throw new InvalidOperationException("The repository NuGet.Config could not be found for benchmark restores.");
+            }
+
+            return directory;
         }
     }
 }

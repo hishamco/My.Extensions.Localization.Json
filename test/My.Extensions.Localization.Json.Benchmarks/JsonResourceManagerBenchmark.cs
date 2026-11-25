@@ -1,7 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using My.Extensions.Localization.Json.Internal;
 using System.Globalization;
-using System.IO;
 
 namespace My.Extensions.Localization.Json.Benchmarks;
 
