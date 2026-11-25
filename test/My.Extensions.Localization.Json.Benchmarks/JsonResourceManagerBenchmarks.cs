@@ -37,6 +37,9 @@ public class JsonResourceManagerBenchmarks
             AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.1.0"));
             AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.2.0"));
             AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.3.0"));
+            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "3.4.0"));
+            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "4.0.0"));
+            AddJob(baseJob.WithNuGet("My.Extensions.Localization.Json", "4.1.0"));
         }
     }
 }
