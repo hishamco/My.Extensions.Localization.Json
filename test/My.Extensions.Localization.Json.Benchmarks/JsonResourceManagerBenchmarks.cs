@@ -8,16 +8,11 @@ using System.Globalization;
 namespace My.Extensions.Localization.Json.Benchmarks;
 
 [Config(typeof(BenchmarkConfig))]
+[MemoryDiagnoser]
 public class JsonResourceManagerBenchmarks
 {
-    private static readonly JsonResourceManager _jsonResourceManager;
-    private static readonly CultureInfo _frenchCulture;
-
-    static JsonResourceManagerBenchmarks()
-    {
-        _jsonResourceManager = new JsonResourceManager(Path.Combine(AppContext.BaseDirectory, "Resources"));
-        _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
-    }
+    private static readonly JsonResourceManager _jsonResourceManager = new("Resources");
+    private static readonly CultureInfo _frenchCulture = CultureInfo.GetCultureInfo("fr-FR");
 
     [Benchmark]
     public void EvaluateGetResourceSetWithoutCultureFallback()

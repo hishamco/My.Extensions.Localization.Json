@@ -10,5 +10,5 @@ public class JsonResourceLoaderBenchmark
     public void EvaluateLoadingSmallResources() => JsonResourceLoader.Load("Resources\\Small.fr-FR.json");
 
     [Benchmark]
-    public void EvaluateLoadingBigResources() => JsonResourceLoader.Load("Resources\\Big.fr-FR.large.json");
+    public void EvaluateLoadingBigResources() => JsonResourceLoader.Load("Resources\\Big.fr-FR.json");
 }

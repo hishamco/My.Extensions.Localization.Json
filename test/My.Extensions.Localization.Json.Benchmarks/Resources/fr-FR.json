@@ -1,4 +1,10 @@
 ﻿{
-  "Hello": "Bonjour",
-  "Hello, {0}": "Bonjour, {0}"
+  "Good morning": "Bon matin",
+  "Good morning, {0}": "Bon matin, {0}",
+  "Good evening": "Bonsoir",
+  "Good evening, {0}": "Bonsoir, {0}",
+  "How are you?": "Comment ça va ?",
+  "How are you, {0}?": "Comment ça va, {0} ?",
+  "Welcome": "Bienvenue",
+  "Welcome, {0}": "Bienvenue, {0}"
 }

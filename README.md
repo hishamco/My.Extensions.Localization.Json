@@ -75,7 +75,7 @@ public class HomeController : Controller
 Run the benchmarks in Release configuration with the .NET 10 SDK or later installed:
 
 ```powershell
-dotnet run --project .\test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj -c Release -f net10.0 -p:TargetFrameworks=net10.0 -- --filter "*JsonResourceManagerBenchmarks*"
+dotnet run --configuration Release --project .\test\My.Extensions.Localization.Json.Benchmarks\My.Extensions.Localization.Json.Benchmarks.csproj
 ```
 
 The benchmark host and its generated builds target .NET 10. The target override also scopes restore of the referenced library to .NET 10. BenchmarkDotNet requires optimized Release assemblies.
@@ -84,37 +84,47 @@ The resource manager comparison measures published versions 3.0.0 through 4.1.0.
 
 ### JsonResourceManagerBenchmarks
 
-| Method                                       | Job        | Mean         | Error        | StdDev       |
-|--------------------------------------------- |----------- |-------------:|-------------:|-------------:|
-| EvaluateGetResourceSetWithoutCultureFallback | v3.0.0     | 92,676.44 ns | 1,257.806 ns | 1,843.676 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v3.1.0     | 35,557.31 ns | 1,350.101 ns | 1,892.653 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v3.2.0     | 33,605.77 ns | 1,029.281 ns | 1,540.580 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v3.3.0     |     58.24 ns |     2.177 ns |     3.259 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v3.4.0     |     71.42 ns |     2.941 ns |     4.403 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v4.0.0     |    115.87 ns |     3.929 ns |     5.880 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | v4.1.0     |    118.46 ns |     4.490 ns |     6.721 ns |
-| EvaluateGetResourceSetWithoutCultureFallback | Current    |    146.70 ns |     5.823 ns |     8.716 ns |
-|                                              |            |              |              |              |
-| EvaluateGetResourceSetWithCultureFallback    | v3.0.0     | 96,567.62 ns | 1,859.263 ns | 2,666.499 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v3.1.0     | 34,873.83 ns |   350.347 ns |   524.383 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v3.2.0     | 33,745.82 ns |   946.474 ns | 1,416.637 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v3.3.0     |    267.71 ns |     9.670 ns |    14.474 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v3.4.0     |    410.47 ns |    12.263 ns |    18.354 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v4.0.0     |    354.65 ns |    11.730 ns |    17.556 ns |
-| EvaluateGetResourceSetWithCultureFallback    | v4.1.0     |    351.84 ns |    10.510 ns |    15.731 ns |
-| EvaluateGetResourceSetWithCultureFallback    | Current    |    374.77 ns |    10.055 ns |    15.049 ns |
+| Method                                       | Job     | Mean         | Error        | StdDev       | Allocated |
+|--------------------------------------------- |-------- |-------------:|-------------:|-------------:|----------:|
+| EvaluateGetResourceSetWithoutCultureFallback | v3.0.0  | 94,781.85 ns |   643.044 ns |   942.565 ns |   30921 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v3.1.0  | 34,407.88 ns |   276.451 ns |   396.478 ns |   12624 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v3.2.0  | 33,836.63 ns | 1,103.478 ns | 1,651.633 ns |   12696 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v3.3.0  |     41.26 ns |     1.907 ns |     2.854 ns |     136 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v3.4.0  |     55.98 ns |     1.806 ns |     2.702 ns |     192 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v4.0.0  |     71.39 ns |     2.623 ns |     3.926 ns |     192 B |
+| EvaluateGetResourceSetWithoutCultureFallback | v4.1.0  |     69.30 ns |     2.385 ns |     3.570 ns |     192 B |
+| EvaluateGetResourceSetWithoutCultureFallback | Current |     77.96 ns |     3.217 ns |     4.815 ns |     192 B |
+|                                              |         |              |              |              |           |
+| EvaluateGetResourceSetWithCultureFallback    | v3.0.0  | 92,820.71 ns |   909.002 ns | 1,332.403 ns |   32481 B |
+| EvaluateGetResourceSetWithCultureFallback    | v3.1.0  | 34,940.69 ns |   324.278 ns |   465.070 ns |   14184 B |
+| EvaluateGetResourceSetWithCultureFallback    | v3.2.0  | 35,468.15 ns | 1,231.626 ns | 1,843.439 ns |   14256 B |
+| EvaluateGetResourceSetWithCultureFallback    | v3.3.0  |    429.57 ns |    19.026 ns |    28.478 ns |    1696 B |
+| EvaluateGetResourceSetWithCultureFallback    | v3.4.0  |    737.90 ns |    29.427 ns |    44.045 ns |    1816 B |
+| EvaluateGetResourceSetWithCultureFallback    | v4.0.0  |    494.27 ns |    20.261 ns |    30.326 ns |    1824 B |
+| EvaluateGetResourceSetWithCultureFallback    | v4.1.0  |    493.11 ns |    22.508 ns |    33.689 ns |    1824 B |
+| EvaluateGetResourceSetWithCultureFallback    | Current |    500.97 ns |    18.410 ns |    26.403 ns |    1824 B |
 
 ### JsonResourceManagerBenchmark
 
-| Method                                       | Mean     | Error    | StdDev   | Gen0   | Allocated |
-|----------------------------------------------|---------:|---------:|---------:|-------:|----------:|
-| EvaluateGetResourceSetWithoutCultureFallback | 19.81 us | 0.221 us | 0.173 us | 0.0916 |   1.38 KB |
-| EvaluateGetResourceSetWithCultureFallback    | 20.23 us | 0.384 us | 0.411 us | 0.0916 |   1.38 KB |
+| Method                                       | Keys    | Mean     | Error    | StdDev   | Allocated |
+|--------------------------------------------- |-------- |---------:|---------:|---------:|----------:|
+| EvaluateGetResourceSetWithoutCultureFallback | 10      | 23.74 us | 0.470 us | 0.823 us |   1.87 KB |
+| EvaluateGetResourceSetWithoutCultureFallback | 100     | 24.23 us | 0.478 us | 0.873 us |   1.88 KB |
+| EvaluateGetResourceSetWithoutCultureFallback | 1000    | 23.68 us | 0.473 us | 0.828 us |   1.89 KB |
+| EvaluateGetResourceSetWithoutCultureFallback | 10000   | 23.96 us | 0.479 us | 1.031 us |   1.91 KB |
+| EvaluateGetResourceSetWithoutCultureFallback | 100000  | 24.17 us | 0.482 us | 0.881 us |   1.92 KB |
+| EvaluateGetResourceSetWithoutCultureFallback | 1000000 | 25.05 us | 0.496 us | 1.068 us |   1.93 KB |
+|                                              |         |          |          |          |           |
+| EvaluateGetResourceSetWithCultureFallback    | 10      | 23.78 us | 0.473 us | 0.816 us |   1.87 KB |
+| EvaluateGetResourceSetWithCultureFallback    | 100     | 23.94 us | 0.474 us | 0.947 us |   1.88 KB |
+| EvaluateGetResourceSetWithCultureFallback    | 1000    | 24.10 us | 0.480 us | 0.841 us |   1.89 KB |
+| EvaluateGetResourceSetWithCultureFallback    | 10000   | 23.98 us | 0.480 us | 0.865 us |   1.91 KB |
+| EvaluateGetResourceSetWithCultureFallback    | 100000  | 25.10 us | 0.492 us | 0.766 us |   1.92 KB |
+| EvaluateGetResourceSetWithCultureFallback    | 1000000 | 24.55 us | 0.489 us | 1.191 us |   1.93 KB |
 
 ### JsonResourceLoaderBenchmark
 
-| Method                        | Mean      | Error     | StdDev    | Gen0   | Allocated |
-|------------------------------ |----------:|----------:|----------:|-------:|----------:|
-| EvaluateLoadingSmallResources | 31.454 us | 0.6061 us | 0.8297 us | 0.7935 |   10688 B |
-| EvaluateLoadingBigResources   |  3.444 us | 0.0670 us | 0.0717 us | 0.0267 |     360 B |
-
+| Method                        | Mean        | Error     | StdDev    | Allocated  |
+|------------------------------ |------------:|----------:|----------:|-----------:|
+| EvaluateLoadingSmallResources |    32.58 us |  0.650 us |  1.156 us |   10.67 KB |
+| EvaluateLoadingBigResources   | 1,430.02 us | 28.542 us | 75.688 us | 2412.91 KB |
